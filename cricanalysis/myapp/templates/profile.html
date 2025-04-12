@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+  <title>CricAnalysis Profile</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background-color: #002147; /* Light blue background */
+      color: #333;
+      line-height: 1.6;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      height: 100vh;
+      padding-top: 50px;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .container {
+      background-color: #fff;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .logo {
+      margin-bottom: 20px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #002147;
+      text-decoration: none;
+    }
+
+    h2 {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .profile-card {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .profile-card h3 {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #002147;
+    }
+
+    .profile-card p {
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    form input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+      margin-bottom: 16px;
+    }
+
+    .password-container {
+      position: relative;
+    }
+
+    .password-container input {
+      padding-right: 40px;
+    }
+
+    .actions {
+      margin-top: 20px;
+    }
+
+    .actions button {
+      background-color: #002147;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .actions button:hover {
+      background-color: #4c57c9;
+    }
+
+    .submit-button {
+      background-color: #002147;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .submit-button:hover {
+      background-color: #024e0b;
+    }
+
+    .delete-account-button {
+      background-color: #d9534f;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .delete-account-button:hover {
+      background-color: #c9302c;
+    }
+
+    .messages {
+    margin-bottom: 20px;
+    }
+
+    .alert {
+        padding: 10px 15px;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        font-size: 14px;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .alert-error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+        <a href="{% url 'home' %}" class="logo-login">CricAnalysis</a>
+      </div>
+    <h2>Profile Details</h2>
+    <div class="profile-card">
+      <h3>Personal Information</h3>
+      <p><strong>Username:</strong> <span class="dynamic-text">{{ user.username }}</span></p>
+      <p><strong>Name:</strong> <span class="dynamic-text">{{ user.first_name }} {{ user.last_name }}</span></p>
+      <p><strong>Email:</strong> <span class="dynamic-text">{{ user.email }}</span></p>
+    </div>
+    <div class="profile-card">
+      <h3>Account Settings</h3>
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    {% if 'account-settings' in message.tags %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
+      <form method="POST" id="update-profile-form">
+        {% csrf_token %}
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" placeholder="{{ user.username }}">
+
+        <label for="first-name">First Name</label>
+        <input type="text" id="first-name" name="first_name" placeholder="{{ user.first_name }}" >
+
+        <label for="last-name">Last Name</label>
+        <input type="text" id="last-name" name="last_name" placeholder="{{ user.last_name }}" >
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="{{ user.email }}" >
+
+        <button type="submit" class="submit-button" name="update-profile-form">Update Profile</button>
+      </form>
+    </div>
+    <div class="profile-card">
+      <h3>Security</h3>
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                {% if 'security' in message.tags %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+      <form method="POST" id="change-password-form">
+        {% csrf_token %}
+        <label for="current-password">Current Password</label>
+        <div class="password-container">
+          <input type="password" id="current-password" name="current_password" placeholder="Enter current password" required>
+        </div>
+        <label for="new-password">New Password</label>
+        <div class="password-container">
+          <input type="password" id="new-password" name="new_password" placeholder="Enter new password" required>
+        </div>
+        <label for="confirm-password">Confirm New Password</label>
+        <div class="password-container">
+          <input type="password" id="confirm-password" name="confirm_password" placeholder="Confirm new password" required>
+        </div>
+        <button type="submit" class="submit-button" name="change-password-form">Change Password</button>
+      </form>
+    </div>
+    <div class="profile-card">
+      <h3>Logout</h3>
+      <form method="POST" action="{% url 'logout' %}" id="logout-form">
+        {% csrf_token %}
+        <button type="submit" class="submit-button">Logout</button>
+      </form>
+    </div>
+    <div class="profile-card">
+      <h3>Delete Account</h3>
+      <form action="{% url 'profile' %}" method="POST" id="delete-account-form" onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone.');">
+        {% csrf_token %}
+        <button type="submit" class="delete-account-button" name="delete-account-form">Delete Account</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

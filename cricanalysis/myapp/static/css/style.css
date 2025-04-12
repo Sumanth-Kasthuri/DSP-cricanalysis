@@ -1,0 +1,62 @@
+/* Global Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: #f7f7fb;
+    color: #333;
+    line-height: 1.6;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Header */
+header {
+    background-color: #ffffff;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #002147; /* Dark blue */
+}
+
+nav#nav {
+    list-style: none;
+    display: flex;
+    gap: 1.5rem;
+}
+
+nav#nav a {
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+nav#nav a:hover {
+    color: #0057a3; /* Lighter blue accent */
+}
+
+.profile-button, .login-button {
+    padding: 0.5rem 1rem;
+    background-color: #002147;
+    color: #fff;
+    border-radius: 4px;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.login-button:hover {
+    background-color: #001b3a;
+}

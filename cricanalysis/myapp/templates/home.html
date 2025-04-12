@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="home-container">
+        {% if request.user.is_authenticated %}
+            <h1>Welcome , {{ request.user.username}} </h1>
+            <p>Explore the world of cricket analytics and insights.</p>
+            <p>Join us to analyze matches, players, and teams like never before!</p>
+        {% else %}
+            <h1>Welcome to CricAnalysis</h1>
+            <p>Explore the world of cricket analytics and insights.</p>
+            <p>Join us to analyze matches, players, and teams like never before!</p>
+            <p>Get started by signing up or logging in.</p>
+        {% endif %}
+    </div>
+{% endblock%}
