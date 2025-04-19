@@ -1,5 +1,157 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Teams</h1>
-{% endblock%}
+<div class="container-wrapper">
+    <div class="custom-container">
+        <h1 class="mb-5">Cricket Teams</h1>
+
+        <style>
+            .container-wrapper {
+                width: 100%;
+                display: flex;
+                justify-content: center;
+            }
+            
+            .custom-container {
+                width: 90%;  /* Takes up 90% of screen width, leaving 5% on each side */
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 2rem 0;
+            }
+            
+            .teams-section {
+                border: 1px solid #e0e0e0;
+                border-radius: 12px;
+                padding: 2%;
+                margin: 2% 0;
+                background-color: #f9f9f9;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            }
+            
+            .teams-section h2 {
+                color: #002147;
+                border-bottom: 2px solid #002147;
+                padding-bottom: 10px;
+                margin-bottom: 20px;
+            }
+            
+            .vertical-scroll-container {
+                max-height: 600px;
+                overflow-y: auto;
+                padding-right: 10px;
+            }
+            
+            .vertical-scroll-container::-webkit-scrollbar {
+                width: 8px;
+            }
+            
+            .vertical-scroll-container::-webkit-scrollbar-thumb {
+                background-color: #002147;
+                border-radius: 4px;
+            }
+            
+            .team-card {
+                display: flex;
+                align-items: center;
+                padding: 15px;
+                margin-bottom: 10px;
+                background-color: white;
+                border-radius: 8px;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                transition: transform 0.2s;
+            }
+            
+            .team-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+            
+            .team-image {
+                width: 60px;
+                height: 60px;
+                object-fit: contain;
+                margin-right: 20px;
+            }
+            
+            .team-info {
+                flex: 1;
+            }
+            
+            .team-name {
+                font-size: 1.2rem;
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+            
+            .team-short-name {
+                color: #666;
+                font-size: 0.9rem;
+            }
+            
+            .section-header {
+                background-color: #eaeaea;
+                padding: 10px 15px;
+                margin: 20px 0 10px;
+                border-radius: 5px;
+                font-weight: bold;
+                color: #002147;
+            }
+
+            .team-image-placeholder {
+                width: 60px;
+                height: 60px;
+                background-color: #f0f0f0;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-right: 20px;
+                color: #002147;
+                font-size: 1.2rem;
+                font-weight: bold;
+            }
+            
+            .team-flag {
+                width: 60px;
+                height: 40px;
+                object-fit: cover;
+                margin-right: 20px;
+                border: 1px solid #ddd;
+            }
+        </style>
+
+        <!-- Teams Section -->
+        <div class="teams-section mb-5">
+            <h2 class="mb-4">International Cricket Teams</h2>
+            <div class="vertical-scroll-container">
+                {% for team in teams %}
+                    {% if team.teamId %}
+                        <div class="team-card">
+                            {% if team.teamSName %}
+                                <div class="team-image-placeholder">{{ team.teamSName }}</div>
+                            {% else %}
+                                <div class="team-image-placeholder">{{ team.teamName|slice:":2" }}</div>
+                            {% endif %}
+                            <div class="team-info">
+                                <div class="team-name">{{ team.teamName }}</div>
+                                {% if team.teamSName %}
+                                    <div class="team-short-name">{{ team.teamSName }}</div>
+                                {% endif %}
+                                <!-- {% if team.countryName %}
+                                    <div class="team-country">{{ team.countryName }}</div>
+                                {% endif %} -->
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="section-header">
+                            {{ team.teamName }}
+                        </div>
+                    {% endif %}
+                {% empty %}
+                    <div class="alert alert-info">No teams available.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

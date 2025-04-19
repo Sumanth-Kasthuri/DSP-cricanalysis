@@ -11,4 +11,6 @@ urlpatterns = [
     path('teams/', views.teams_views, name='teams'),
     path('players/', views.players_view, name='players'),
     path('profile/', views.profile_view, name='profile'),
+    path('player_info/', views.player_info_view, name='player_info'),
+    path('player_image/', views.player_image_proxy, name='player_image'),
 ]
