@@ -1,0 +1,404 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-wrapper">
+    <div class="custom-container">
+        {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+        {% else %}
+            <div class="player-header">
+                <div class="player-header-info">
+                    {% if player_details.faceImageId %}
+                        <div class="player-profile-image" style="background-image: url('{% url 'player_image' %}?id={{ player_details.faceImageId }}'); background-size: cover;"></div>
+                    {% else %}
+                        <div class="player-profile-image">
+                            {{ player_details.name|slice:":1"|default:"?" }}
+                        </div>
+                    {% endif %}
+                    <div>
+                        <h1>{{ player_details.name|default:"Player Details" }}</h1>
+                        {% if player_details.teamName %}
+                            <div class="team-name">{{ player_details.teamName }}</div>
+                        {% endif %}
+                        {% if player_details.intlTeam %}
+                            <div class="intl-team">{{ player_details.intlTeam }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="back-button">
+                    <a href="{% url 'players' %}" class="btn">Back to Players</a>
+                </div>
+            </div>
+
+            <div class="stats-tabs">
+                <a href="{% url 'player_info' %}?id={{ player_id }}&type=info" class="tab-link {% if stat_type == 'info' %}active{% endif %}">
+                    Player Info
+                </a>
+                <a href="{% url 'player_info' %}?id={{ player_id }}&type=batting" class="tab-link {% if stat_type == 'batting' %}active{% endif %}">
+                    Batting Stats
+                </a>
+                <a href="{% url 'player_info' %}?id={{ player_id }}&type=bowling" class="tab-link {% if stat_type == 'bowling' %}active{% endif %}">
+                    Bowling Stats
+                </a>
+            </div>
+
+            {% if stat_type == 'info' %}
+                <!-- Player Info Section -->
+                <div class="stats-container">
+                    <div class="stats-header">
+                        <h2>Player Information</h2>
+                    </div>
+
+                    <div class="player-info-container">
+                        <div class="player-info-grid">
+                            <!-- Basic Information -->
+                            <div class="info-section">
+                                <h3>Basic Details</h3>
+                                <div class="info-item">
+                                    <span class="label">Full Name:</span>
+                                    <span class="value">{{ player_details.name }}</span>
+                                </div>
+                                {% if player_details.nickName %}
+                                <div class="info-item">
+                                    <span class="label">Nickname:</span>
+                                    <span class="value">{{ player_details.nickName }}</span>
+                                </div>
+                                {% endif %}
+                                {% if player_details.DoB %}
+                                <div class="info-item">
+                                    <span class="label">Date of Birth:</span>
+                                    <span class="value">{{ player_details.DoB }}</span>
+                                </div>
+                                {% endif %}
+                                {% if player_details.birthPlace %}
+                                <div class="info-item">
+                                    <span class="label">Birth Place:</span>
+                                    <span class="value">{{ player_details.birthPlace }}</span>
+                                </div>
+                                {% endif %}
+                                {% if player_details.height %}
+                                <div class="info-item">
+                                    <span class="label">Height:</span>
+                                    <span class="value">{{ player_details.height }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Cricket Details -->
+                            <div class="info-section">
+                                <h3>Cricket Details</h3>
+                                {% if player_details.role %}
+                                <div class="info-item">
+                                    <span class="label">Role:</span>
+                                    <span class="value">{{ player_details.role }}</span>
+                                </div>
+                                {% endif %}
+                                {% if player_details.bat %}
+                                <div class="info-item">
+                                    <span class="label">Batting Style:</span>
+                                    <span class="value">{{ player_details.bat }}</span>
+                                </div>
+                                {% endif %}
+                                {% if player_details.bowl %}
+                                <div class="info-item">
+                                    <span class="label">Bowling Style:</span>
+                                    <span class="value">{{ player_details.bowl }}</span>
+                                </div>
+                                {% endif %}
+                                {% if player_details.intlTeam %}
+                                <div class="info-item">
+                                    <span class="label">International Team:</span>
+                                    <span class="value">{{ player_details.intlTeam }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Rankings -->
+                            {% if player_details.rankings.bat or player_details.rankings.bowl %}
+                            <div class="info-section">
+                                <h3>Rankings</h3>
+                                {% if player_details.rankings.bat.testRank %}
+                                <div class="info-item">
+                                    <span class="label">Test Batting Rank:</span>
+                                    <span class="value">{{ player_details.rankings.bat.testRank }}</span>
+                                </div>
+                                {% endif %}
+                                {% if player_details.rankings.bat.odiBestRank %}
+                                <div class="info-item">
+                                    <span class="label">ODI Best Batting Rank:</span>
+                                    <span class="value">{{ player_details.rankings.bat.odiBestRank }}</span>
+                                </div>
+                                {% endif %}
+                                {% if player_details.rankings.bowl.testRank %}
+                                <div class="info-item">
+                                    <span class="label">Test Bowling Rank:</span>
+                                    <span class="value">{{ player_details.rankings.bowl.testRank }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Teams Played For -->
+                        {% if player_details.teams %}
+                        <div class="info-section full-width">
+                            <h3>Teams</h3>
+                            <div class="info-item">
+                                <span class="value teams-list">{{ player_details.teams }}</span>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Biography -->
+                        {% if player_details.bio %}
+                        <div class="info-section full-width">
+                            <h3>Biography</h3>
+                            <div class="biography">
+                                {{ player_details.bio|safe }}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% else %}
+                <!-- Stats Section (Batting or Bowling) -->
+                <div class="stats-container">
+                    <div class="stats-header">
+                        <h2>{% if stat_type == 'bowling' %}Bowling{% else %}Batting{% endif %} Statistics</h2>
+                    </div>
+
+                    {% if stats.headers %}
+                        <div class="stats-table-container">
+                            <table class="stats-table">
+                                <thead>
+                                    <tr>
+                                        {% for header in stats.headers %}
+                                            <th>{{ header }}</th>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for row in stats.values %}
+                                        <tr>
+                                            {% for value in row.values %}
+                                                <td>{{ value }}</td>
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="no-stats">
+                            No {% if stat_type == 'bowling' %}bowling{% else %}batting{% endif %} statistics available for this player.
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .container-wrapper {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+    
+    .custom-container {
+        width: 90%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 0;
+    }
+
+    .player-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #002147;
+    }
+
+    .player-header-info {
+        display: flex;
+        align-items: center;
+    }
+
+    .player-profile-image {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        margin-right: 2rem;
+        background-color: #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        font-weight: bold;
+        color: #002147;
+        background-repeat: no-repeat;
+        border: 1px solid #eee;
+    }
+
+    .back-button .btn {
+        padding: 0.75rem 1.5rem;
+        background-color: #002147;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+    }
+
+    .back-button .btn:hover {
+        background-color: #001b3a;
+    }
+
+    .team-name {
+        font-size: 1.2rem;
+        color: #666;
+        margin-bottom: 0.5rem;
+    }
+
+    .intl-team {
+        font-size: 1rem;
+        color: #888;
+    }
+
+    .stats-tabs {
+        display: flex;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .tab-link {
+        padding: 1rem 1.5rem;
+        text-decoration: none;
+        color: #666;
+        font-weight: bold;
+        border-bottom: 3px solid transparent;
+        transition: all 0.2s;
+    }
+
+    .tab-link:hover {
+        color: #002147;
+        border-bottom-color: #ccc;
+    }
+
+    .tab-link.active {
+        color: #002147;
+        border-bottom-color: #002147;
+    }
+
+    .stats-container {
+        background-color: #f9f9f9;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 2rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .stats-header {
+        margin-bottom: 1.5rem;
+        color: #002147;
+    }
+
+    .stats-table-container {
+        overflow-x: auto;
+    }
+
+    .stats-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .stats-table th,
+    .stats-table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .stats-table th {
+        background-color: #002147;
+        color: white;
+        font-weight: bold;
+    }
+
+    .stats-table tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    .stats-table tr:hover {
+        background-color: #e9e9e9;
+    }
+
+    .no-stats {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+        font-style: italic;
+    }
+
+    /* Player info specific styles */
+    .player-info-container {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .player-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+
+    .info-section {
+        padding: 1.5rem;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .info-section h3 {
+        color: #002147;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .info-item {
+        margin-bottom: 0.75rem;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .info-item .label {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .info-item .value {
+        font-weight: 500;
+    }
+
+    .teams-list {
+        line-height: 1.6;
+    }
+
+    .full-width {
+        grid-column: 1 / -1;
+    }
+
+    .biography {
+        line-height: 1.8;
+        padding: 1rem;
+        background-color: #f9f9f9;
+        border-radius: 4px;
+    }
+</style>
+{% endblock %}

@@ -1,5 +1,294 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Matches</h1>
-{% endblock%}
+<div class="container-wrapper">
+    <div class="custom-container">
+        <h1 class="mb-5">Cricket Matches</h1>
+
+        <style>
+            .container-wrapper {
+                width: 100%;
+                display: flex;
+                justify-content: center;
+            }
+            
+            .custom-container {
+                width: 90%;  /* Takes up 90% of screen width, leaving 5% on each side */
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 2rem 0;
+            }
+            
+            .horizontal-scroll {
+                display: flex;
+                overflow-x: auto;
+                gap: 1rem;
+                padding: 1rem 0;
+            }
+
+            .horizontal-scroll::-webkit-scrollbar {
+                height: 8px;
+            }
+
+            .horizontal-scroll::-webkit-scrollbar-thumb {
+                background-color: #002147;
+                border-radius: 4px;
+            }
+
+            .card {
+                min-width: 300px;
+                flex: 0 0 auto;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            }
+
+            .card-header {
+                font-size: 1.2rem;
+                font-weight: bold;
+                padding: 0.5rem 1rem;
+                border-bottom: 1px solid #ccc;
+            }
+
+            .card-body {
+                padding: 1rem;
+            }
+
+            .card-header.bg-danger {
+                background-color: #dc3545;
+                color: white;
+            }
+
+            .card-header.bg-primary {
+                background-color: #007bff;
+                color: white;
+            }
+
+            .card-header.bg-secondary {
+                background-color: #6c757d;
+                color: white;
+            }
+
+            /* Format filter styles */
+            .format-filter {
+                margin-bottom: 20px;
+                display: flex;
+                align-items: center;
+            }
+
+            .format-filter label {
+                margin-right: 10px;
+                font-weight: bold;
+            }
+
+            .format-filter select {
+                padding: 8px 12px;
+                border: 1px solid #002147;
+                border-radius: 4px;
+                background-color: white;
+                min-width: 150px;
+            }
+
+            /* Added styles for no-matches alerts */
+            .no-matches {
+                width: 100%;
+                text-align: center;
+                padding: 20px;
+            }
+            
+            .horizontal-scroll-container {
+                position: relative;
+                min-height: 100px; /* Ensure container has height even when empty */
+            }
+
+            .match-section {
+                border: 1px solid #e0e0e0;
+                border-radius: 12px;
+                padding: 2%;
+                margin: 2% 0;
+                background-color: #f9f9f9;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            }
+            
+            .match-section h2 {
+                color: #002147;
+                border-bottom: 2px solid #002147;
+                padding-bottom: 10px;
+                margin-bottom: 20px;
+            }
+        </style>
+
+        <!-- Format Filter Dropdown -->
+        <div class="format-filter">
+            <label for="formatFilter">Filter by Format:</label>
+            <select id="formatFilter">
+                <option value="all" selected>All Formats</option>
+                <option value="ODI">ODI</option>
+                <option value="TEST">TEST</option>
+                <option value="T20">T20</option>
+            </select>
+        </div>
+
+        <div class="match-section mb-5">
+            <h2 class="mb-4">Live Matches</h2>
+            <div class="horizontal-scroll-container">
+                <div class="horizontal-scroll">
+                    {% for match in live_matches %}
+                        <div class="card" data-format="{{ match.matchFormat }}">
+                            <div class="card-header bg-danger">
+                                <h3 class="mb-0">{{ match.team1.teamName }} vs {{ match.team2.teamName }}</h3>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Format:</strong> {{ match.matchFormat }}</p>
+                                <p><strong>Description:</strong> {{ match.matchDesc }}</p>
+                                <p><strong>Venue:</strong> {{ match.venue.ground }}, {{ match.venue.city }}</p>
+                                <p><strong>Status:</strong> {{ match.status }}</p>
+                                {% if match.team1_score.runs %}
+                                    <p><strong>{{ match.team1.teamSName }}:</strong> {{ match.team1_score.runs }}/{{ match.team1_score.wickets }} ({{ match.team1_score.overs }} ov)</p>
+                                {% endif %}
+                                {% if match.team2_score.runs %}
+                                    <p><strong>{{ match.team2.teamSName }}:</strong> {{ match.team2_score.runs }}/{{ match.team2_score.wickets }} ({{ match.team2_score.overs }} ov)</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% empty %}
+                        <!-- This will be controlled by JavaScript when filtering -->
+                    {% endfor %}
+                </div>
+                <div class="alert alert-info no-matches" id="live-no-matches" {% if live_matches %}style="display: none;"{% endif %}>No live matches right now.</div>
+            </div>
+        </div>
+
+        <hr class="my-5">
+
+        <div class="match-section mb-5">
+            <h2 class="mb-4">Upcoming Matches</h2>
+            <div class="horizontal-scroll-container">
+                <div class="horizontal-scroll">
+                    {% for match in upcoming_matches %}
+                        <div class="card" data-format="{{ match.matchFormat }}">
+                            <div class="card-header bg-primary">
+                                <h3 class="mb-0">{{ match.team1.teamName }} vs {{ match.team2.teamName }}</h3>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Format:</strong> {{ match.matchFormat }}</p>
+                                <p><strong>Description:</strong> {{ match.matchDesc }}</p>
+                                <p><strong>Venue:</strong> {{ match.venue.ground }}, {{ match.venue.city }}</p>
+                                <p><strong>Start Date:</strong> {{ match.startDate|date:"F j, Y H:i" }}</p>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <!-- This will be controlled by JavaScript when filtering -->
+                    {% endfor %}
+                </div>
+                <div class="alert alert-info no-matches" id="upcoming-no-matches" {% if upcoming_matches %}style="display: none;"{% endif %}>No upcoming matches.</div>
+            </div>
+        </div>
+
+        <hr class="my-5">
+
+        <div class="match-section mb-5">
+            <h2 class="mb-4">Recent Matches</h2>
+            <div class="horizontal-scroll-container">
+                <div class="horizontal-scroll">
+                    {% for match in recent_matches %}
+                        <div class="card" data-format="{{ match.matchFormat }}">
+                            <div class="card-header bg-secondary">
+                                <h3 class="mb-0">{{ match.team1.teamName }} vs {{ match.team2.teamName }}</h3>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Format:</strong> {{ match.matchFormat }}</p>
+                                <p><strong>Description:</strong> {{ match.matchDesc }}</p>
+                                <p><strong>Status:</strong> {{ match.status }}</p>
+                                {% if match.team1_score.runs %}
+                                    <p><strong>{{ match.team1.teamSName }}:</strong> {{ match.team1_score.runs }}/{{ match.team1_score.wickets }} ({{ match.team1_score.overs }} ov)</p>
+                                {% endif %}
+                                {% if match.team2_score.runs %}
+                                    <p><strong>{{ match.team2.teamSName }}:</strong> {{ match.team2_score.runs }}/{{ match.team2_score.wickets }} ({{ match.team2_score.overs }} ov)</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% empty %}
+                        <!-- This will be controlled by JavaScript when filtering -->
+                    {% endfor %}
+                </div>
+                <div class="alert alert-info no-matches" id="recent-no-matches" {% if recent_matches %}style="display: none;"{% endif %}>No recent matches.</div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Get the format filter dropdown
+                const formatFilter = document.getElementById('formatFilter');
+                
+                // Add change event to the dropdown
+                formatFilter.addEventListener('change', function() {
+                    // Get the selected format
+                    const format = this.value;
+                    
+                    // Get all match cards
+                    const cards = document.querySelectorAll('.card');
+                    
+                    // Counter for each section
+                    let liveCounts = 0;
+                    let upcomingCounts = 0;
+                    let recentCounts = 0;
+                    
+                    // Filter cards based on format
+                    cards.forEach(card => {
+                        const cardFormat = card.getAttribute('data-format');
+                        const section = card.closest('.match-section');
+                        
+                        if (format === 'all' || cardFormat === format) {
+                            card.style.display = '';
+                            
+                            // Count visible cards in each section
+                            if (section.querySelector('h2').textContent.includes('Live')) {
+                                liveCounts++;
+                            } else if (section.querySelector('h2').textContent.includes('Upcoming')) {
+                                upcomingCounts++;
+                            } else if (section.querySelector('h2').textContent.includes('Recent')) {
+                                recentCounts++;
+                            }
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                    
+                    // Get message elements
+                    const liveNoMatches = document.getElementById('live-no-matches');
+                    const upcomingNoMatches = document.getElementById('upcoming-no-matches');
+                    const recentNoMatches = document.getElementById('recent-no-matches');
+                    
+                    // Update live matches message
+                    if (liveCounts === 0) {
+                        let message = `No ${format !== 'all' ? format + ' ' : ''}matches right now.`;
+                        liveNoMatches.textContent = message;
+                        liveNoMatches.style.display = 'block';
+                    } else {
+                        liveNoMatches.style.display = 'none';
+                    }
+                    
+                    // Update upcoming matches message
+                    if (upcomingCounts === 0) {
+                        let message = `No ${format !== 'all' ? format + ' ' : ''}matches scheduled.`;
+                        upcomingNoMatches.textContent = message;
+                        upcomingNoMatches.style.display = 'block';
+                    } else {
+                        upcomingNoMatches.style.display = 'none';
+                    }
+                    
+                    // Update recent matches message
+                    if (recentCounts === 0) {
+                        let message = `No ${format !== 'all' ? format + ' ' : ''}matches available.`;
+                        recentNoMatches.textContent = message;
+                        recentNoMatches.style.display = 'block';
+                    } else {
+                        recentNoMatches.style.display = 'none';
+                    }
+                });
+            });
+        </script>
+    </div>
+</div>
+{% endblock %}
