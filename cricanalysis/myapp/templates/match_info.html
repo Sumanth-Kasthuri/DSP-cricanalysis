@@ -1,0 +1,465 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-wrapper">
+    <div class="custom-container">
+        {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+        {% else %}
+            <div class="match-header">
+                <div class="match-details">
+                    <h1>{{ match_details.team1.teamName }} vs {{ match_details.team2.teamName }}</h1>
+                    <div class="match-venue">{{ match_details.venue }}</div>
+                    <div class="match-description">{{ match_details.matchDescription }}</div>
+                    {% if match_details.status %}
+                        <div class="match-status">{{ match_details.status }}</div>
+                    {% endif %}
+                </div>
+                <div class="match-summary">
+                    {% if match_details.team1_score %}
+                        <div class="team-score">
+                            <span class="team-name">{{ match_details.team1.teamSName }}</span>:
+                            <span class="score">{{ match_details.team1_score.runs|default:"0" }}/{{ match_details.team1_score.wickets|default:"0" }}</span>
+                            <span class="overs">({{ match_details.team1_score.overs|default:"0" }} ov)</span>
+                        </div>
+                    {% endif %}
+                    {% if match_details.team2_score %}
+                        <div class="team-score">
+                            <span class="team-name">{{ match_details.team2.teamSName }}</span>:
+                            <span class="score">{{ match_details.team2_score.runs|default:"0" }}/{{ match_details.team2_score.wickets|default:"0" }}</span>
+                            <span class="overs">({{ match_details.team2_score.overs|default:"0" }} ov)</span>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="back-button">
+                    <a href="{% url 'matches' %}" class="btn">Back to Matches</a>
+                </div>
+            </div>
+
+            <div class="content-grid">
+                <!-- Scorecard Section -->
+                <div class="scorecard-section">
+                    {% for innings in scoreCard %}
+                    <div class="innings-card">
+                        <div class="innings-header">
+                            <div class="team-info">
+                                <h2>{{ innings.batTeamDetails.batTeamName }}</h2>
+                                <div class="innings-number">Innings {{ innings.inningsId }}</div>
+                            </div>
+                            <div class="innings-total">
+                                {% if innings.batTeamDetails.batTeamName == match_details.team1.teamName %}
+                                    <span class="total-score">{{ match_details.team1_score.runs|default:"" }}</span>
+                                    <span class="total-overs">({{ match_details.team1_score.overs|default:"0" }} overs)</span>
+                                {% elif innings.batTeamDetails.batTeamName == match_details.team2.teamName %}
+                                    <span class="total-score">{{ match_details.team2_score.runs|default:"" }}</span>
+                                    <span class="total-overs">({{ match_details.team2_score.overs|default:"0" }} overs)</span>
+                                {% else %}
+                                    <span class="total-score">{{ innings.score|default:"" }}</span>
+                                    <span class="total-overs">({{ innings.overs|default:"0" }} overs)</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Batting Scorecard -->
+                        <div class="scorecard-table-container">
+                            <h3>Batting</h3>
+                            <table class="scorecard-table batting-table">
+                                <thead>
+                                    <tr>
+                                        <th>Batter</th>
+                                        <th></th>
+                                        <th>R</th>
+                                        <th>B</th>
+                                        <th>4s</th>
+                                        <th>6s</th>
+                                        <th>SR</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for key, batter in innings.batTeamDetails.batsmenData.items %}
+                                    <tr>
+                                        <td class="player-name">
+                                            {{ batter.batName }}
+                                            {% if batter.isCaptain %}<span class="captain-marker">(c)</span>{% endif %}
+                                            {% if batter.isKeeper %}<span class="keeper-marker">(wk)</span>{% endif %}
+                                        </td>
+                                        <td class="dismissal">{{ batter.outDesc }}</td>
+                                        <td class="runs">{{ batter.runs }}</td>
+                                        <td class="balls">{{ batter.balls }}</td>
+                                        <td class="fours">{{ batter.fours }}</td>
+                                        <td class="sixes">{{ batter.sixes }}</td>
+                                        <td class="strike-rate">{{ batter.strikeRate }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                                {% if innings.extrasData %}
+                                <tfoot>
+                                    <tr class="extras-row">
+                                        <td colspan="2">Extras</td>
+                                        <td colspan="5">
+                                            {{ innings.extrasData.total }} (b {{ innings.extrasData.byes }}, 
+                                            lb {{ innings.extrasData.legByes }}, w {{ innings.extrasData.wides }}, 
+                                            nb {{ innings.extrasData.noBalls }}, p {{ innings.extrasData.penalty }})
+                                        </td>
+                                    </tr>
+                                    <tr class="total-row">
+                                        <td colspan="2">Total</td>
+                                        <td colspan="5">
+                                            {% if innings.batTeamDetails.batTeamName == match_details.team1.teamName %}
+                                                {{ match_details.team1_score.runs|default:"0" }}
+                                                ({{ match_details.team1_score.wickets|default:"0" }} wkts, 
+                                                {{ match_details.team1_score.overs|default:"0" }} Ov)
+                                            {% elif innings.batTeamDetails.batTeamName == match_details.team2.teamName %}
+                                                {{ match_details.team2_score.runs|default:"0" }}
+                                                ({{ match_details.team2_score.wickets|default:"0" }} wkts, 
+                                                {{ match_details.team2_score.overs|default:"0" }} Ov)
+                                            {% else %}
+                                                {{ innings.score|default:"0" }}
+                                                ({{ innings.wickets|default:"0" }} wkts, {{ innings.overs|default:"0" }} Ov)
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                                {% endif %}
+                            </table>
+                        </div>
+                        
+                        <!-- Bowling Scorecard -->
+                        {% if innings.bowlTeamDetails.bowlersData %}
+                        <div class="scorecard-table-container">
+                            <h3>Bowling</h3>
+                            <table class="scorecard-table bowling-table">
+                                <thead>
+                                    <tr>
+                                        <th>Bowler</th>
+                                        <th>O</th>
+                                        <th>M</th>
+                                        <th>R</th>
+                                        <th>W</th>
+                                        <th>Econ</th>
+                                        <th>Dots</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for key, bowler in innings.bowlTeamDetails.bowlersData.items %}
+                                    <tr>
+                                        <td class="player-name">
+                                            {{ bowler.bowlName }}
+                                            {% if bowler.isCaptain %}<span class="captain-marker">(c)</span>{% endif %}
+                                        </td>
+                                        <td class="overs">{{ bowler.overs }}</td>
+                                        <td class="maidens">{{ bowler.maidens }}</td>
+                                        <td class="runs">{{ bowler.runs }}</td>
+                                        <td class="wickets">{{ bowler.wickets }}</td>
+                                        <td class="economy">{{ bowler.economy }}</td>
+                                        <td class="dots">{{ bowler.dots }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Fall of Wickets -->
+                        {% if innings.fow %}
+                        <div class="fow-section">
+                            <h3>Fall of Wickets</h3>
+                            <div class="fow-text">
+                                {% for wicket in innings.fow %}
+                                    {{ wicket.wktRuns }}-{{ wicket.wktNbr }} ({{ wicket.batName }}, {{ wicket.wktOver }} ov){% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div class="scorecard-placeholder">
+                        <p>Scorecard data not available for this match yet.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Sidebar for Weather and Predictions -->
+                <div class="match-sidebar">
+                    <!-- Weather Section (to be implemented later) -->
+                    <div class="sidebar-card weather-card">
+                        <h3>Weather at Venue</h3>
+                        <div class="placeholder-content">
+                            Weather information will be displayed here
+                        </div>
+                    </div>
+                    
+                    <!-- Prediction Section (to be implemented later) -->
+                    <div class="sidebar-card prediction-card">
+                        <h3>Match Prediction</h3>
+                        <div class="placeholder-content">
+                            AI prediction will be displayed here
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .container-wrapper {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+    
+    .custom-container {
+        width: 90%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 0;
+    }
+    
+    .match-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #002147;
+        flex-wrap: wrap;
+    }
+    
+    .match-venue {
+        color: #666;
+        margin-top: 0.5rem;
+    }
+    
+    .match-description {
+        color: #444;
+        margin-top: 0.25rem;
+    }
+    
+    .match-status {
+        color: #002147;
+        font-weight: bold;
+        margin-top: 0.5rem;
+    }
+    
+    .match-summary {
+        text-align: center;
+        margin: 1rem 0;
+    }
+    
+    .team-score {
+        font-size: 1.1rem;
+        margin: 0.5rem 0;
+    }
+    
+    .team-name {
+        font-weight: bold;
+        color: #002147;
+    }
+    
+    .score {
+        font-weight: bold;
+    }
+    
+    .back-button .btn {
+        padding: 0.75rem 1.5rem;
+        background-color: #002147;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+    }
+    
+    .back-button .btn:hover {
+        background-color: #001b3a;
+    }
+    
+    .content-grid {
+        display: grid;
+        grid-template-columns: 1fr 300px;
+        gap: 2rem;
+    }
+    
+    .scorecard-section {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+    
+    .innings-card {
+        background-color: #f9f9f9;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+    
+    .innings-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .innings-number {
+        color: #666;
+        margin-top: 0.25rem;
+    }
+    
+    .total-score {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #002147;
+    }
+    
+    .total-overs {
+        color: #666;
+        margin-left: 0.5rem;
+    }
+    
+    .scorecard-table-container {
+        margin-bottom: 2rem;
+    }
+    
+    .scorecard-table-container h3 {
+        color: #002147;
+        margin-bottom: 1rem;
+    }
+    
+    .scorecard-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .scorecard-table th,
+    .scorecard-table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid #e0e0e0;
+        text-align: left;
+    }
+    
+    .scorecard-table th {
+        background-color: #002147;
+        color: white;
+        font-weight: bold;
+    }
+    
+    .scorecard-table tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+    
+    .player-name {
+        font-weight: 500;
+    }
+    
+    .captain-marker,
+    .keeper-marker {
+        font-weight: normal;
+        color: #666;
+        margin-left: 2px;
+    }
+    
+    .dismissal {
+        color: #666;
+        font-size: 0.9rem;
+        max-width: 200px;
+    }
+    
+    .extras-row,
+    .total-row {
+        font-weight: bold;
+    }
+    
+    .total-row {
+        background-color: #f2f2f2;
+    }
+    
+    .fow-section {
+        margin-top: 1rem;
+    }
+    
+    .fow-section h3 {
+        color: #002147;
+        margin-bottom: 0.5rem;
+    }
+    
+    .fow-text {
+        line-height: 1.6;
+        color: #333;
+    }
+    
+    .match-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .sidebar-card {
+        background-color: #f9f9f9;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+    
+    .sidebar-card h3 {
+        color: #002147;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .placeholder-content {
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+        font-style: italic;
+        background-color: #f0f0f0;
+        border-radius: 4px;
+    }
+    
+    .scorecard-placeholder {
+        text-align: center;
+        padding: 3rem;
+        color: #666;
+        font-style: italic;
+        background-color: #f9f9f9;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+    }
+    
+    /* Responsive styles */
+    @media (max-width: 992px) {
+        .content-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .match-sidebar {
+            margin-top: 2rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .innings-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .innings-total {
+            margin-top: 1rem;
+        }
+        
+        .scorecard-table {
+            font-size: 0.9rem;
+        }
+        
+        .dismissal {
+            max-width: 150px;
+        }
+    }
+</style>
+{% endblock %}

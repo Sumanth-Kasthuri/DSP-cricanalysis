@@ -112,7 +112,6 @@
                 width: 60px;
                 height: 60px;
                 border-radius: 50%;
-                object-fit: cover;
                 margin-right: 20px;
                 background-color: #f0f0f0;
                 display: flex;
@@ -121,6 +120,11 @@
                 color: #002147;
                 font-weight: bold;
                 font-size: 1.5rem;
+                /* Improved image display */
+                background-repeat: no-repeat;
+                background-position: center 25%;
+                background-size: contain;
+                overflow: visible;
             }
             
             .player-info {
@@ -188,7 +192,7 @@
                 {% for player in players %}
                 <a href="{% url 'player_info' %}?id={{ player.id }}" class="player-card">
                     {% if player.faceImageId %}
-                        <div class="player-image" style="background-image: url('https://cricbuzz-cricket.p.rapidapi.com/img/v1/i1/c{{ player.faceImageId }}/i.jpg'); background-size: cover;"></div>
+                        <div class="player-image" style="background-image: url('{% url 'player_image' %}?id={{ player.faceImageId }}')"></div>
                     {% else %}
                         <div class="player-image">
                             {{ player.name|slice:":1" }}

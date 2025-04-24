@@ -41,6 +41,13 @@
                 border: 1px solid #ccc;
                 border-radius: 8px;
                 box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                transition: transform 0.2s;
+                cursor: pointer;
+            }
+
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
             }
 
             .card-header {
@@ -134,7 +141,7 @@
             <div class="horizontal-scroll-container">
                 <div class="horizontal-scroll">
                     {% for match in live_matches %}
-                        <div class="card" data-format="{{ match.matchFormat }}">
+                        <div class="card" data-format="{{ match.matchFormat }}" onclick="location.href='{% url 'match_info' %}?id={{ match.matchId }}'">
                             <div class="card-header bg-danger">
                                 <h3 class="mb-0">{{ match.team1.teamName }} vs {{ match.team2.teamName }}</h3>
                             </div>
@@ -166,7 +173,7 @@
             <div class="horizontal-scroll-container">
                 <div class="horizontal-scroll">
                     {% for match in upcoming_matches %}
-                        <div class="card" data-format="{{ match.matchFormat }}">
+                        <div class="card" data-format="{{ match.matchFormat }}" onclick="location.href='{% url 'match_info' %}?id={{ match.matchId }}'">
                             <div class="card-header bg-primary">
                                 <h3 class="mb-0">{{ match.team1.teamName }} vs {{ match.team2.teamName }}</h3>
                             </div>
@@ -192,7 +199,7 @@
             <div class="horizontal-scroll-container">
                 <div class="horizontal-scroll">
                     {% for match in recent_matches %}
-                        <div class="card" data-format="{{ match.matchFormat }}">
+                        <div class="card" data-format="{{ match.matchFormat }}" onclick="location.href='{% url 'match_info' %}?id={{ match.matchId }}'">
                             <div class="card-header bg-secondary">
                                 <h3 class="mb-0">{{ match.team1.teamName }} vs {{ match.team2.teamName }}</h3>
                             </div>

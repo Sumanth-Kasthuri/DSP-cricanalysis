@@ -112,6 +112,7 @@ def extract_matches(match_type_data):
                     "team1_score": team1_score,
                     "team2_score": team2_score,
                     "startDate": match_info.get("startDate", ""),
+                    "matchId": match_info.get("matchId", "")  # Add matchId to the data
                 })
     return matches
 
@@ -228,3 +229,64 @@ def player_image_proxy(request):
             return HttpResponse(status=404)
     except Exception as e:
         return HttpResponse(status=500)
+
+def match_info_view(request):
+    match_id = request.GET.get('id')
+    
+    if not match_id:
+        # No match ID provided
+        return render(request, 'match_info.html', {'error': 'No match selected'})
+    
+    # First, get the detailed match data to ensure we have venue, teams, and scores
+    match_details = None
+    
+    # Check in live matches
+    live_data = get_live_matches()
+    live_matches = extract_matches(live_data)
+    for match in live_matches:
+        if str(match.get('matchId')) == str(match_id):
+            match_details = match
+            break
+    
+    # If not found in live, check in upcoming
+    if not match_details:
+        upcoming_data = get_upcoming_matches()
+        upcoming_matches = extract_matches(upcoming_data)
+        for match in upcoming_matches:
+            if str(match.get('matchId')) == str(match_id):
+                match_details = match
+                break
+    
+    # If not found in upcoming, check in recent
+    if not match_details:
+        recent_data = get_recent_matches()
+        recent_matches = extract_matches(recent_data)
+        for match in recent_matches:
+            if str(match.get('matchId')) == str(match_id):
+                match_details = match
+                break
+    
+    # Get match scorecard data
+    scorecard_data = get_match_scorecard(match_id)
+    
+    # Check for errors in the API response
+    if 'error' in scorecard_data:
+        return render(request, 'match_info.html', {'error': scorecard_data['error']})
+    
+    # Prepare context for the template with enhanced details
+    context = {
+        'match_id': match_id,
+        'scoreCard': scorecard_data.get('scoreCard', []),
+        'match_details': {
+            'matchDescription': match_details.get('matchDesc') if match_details else scorecard_data.get('matchDescription', 'Cricket Match'),
+            'venue': match_details.get('venue', {}).get('ground') + ', ' + match_details.get('venue', {}).get('city') if match_details else scorecard_data.get('venue', 'Unknown Venue'),
+            'matchDate': scorecard_data.get('matchDate', ''),
+            'status': match_details.get('status') if match_details else scorecard_data.get('status', ''),
+            'team1': match_details.get('team1', {}) if match_details else {},
+            'team2': match_details.get('team2', {}) if match_details else {},
+            'team1_score': match_details.get('team1_score', {}) if match_details else {},
+            'team2_score': match_details.get('team2_score', {}) if match_details else {}
+        }
+    }
+    
+    return render(request, 'match_info.html', context)

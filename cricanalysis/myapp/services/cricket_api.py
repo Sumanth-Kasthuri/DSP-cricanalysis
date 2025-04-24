@@ -209,3 +209,21 @@ def get_player_bowling_stats(player_id):
         return response.json()
     else:
         return {"error": f"Failed to fetch bowling stats: {response.status_code}"}
+
+def get_match_scorecard(match_id):
+    """
+    Get detailed scorecard for a specific match
+    """
+    url = f"https://cricbuzz-cricket.p.rapidapi.com/mcenter/v1/{match_id}/hscard"
+    
+    headers = {
+        "X-RapidAPI-Key": RAPID_API_KEY,
+        "X-RapidAPI-Host": RAPID_API_HOST
+    }
+    
+    response = requests.get(url, headers=headers)
+    
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return {"error": f"Failed to fetch match scorecard: {response.status_code}"}

@@ -9,7 +9,7 @@
             <div class="player-header">
                 <div class="player-header-info">
                     {% if player_details.faceImageId %}
-                        <div class="player-profile-image" style="background-image: url('{% url 'player_image' %}?id={{ player_details.faceImageId }}'); background-size: cover;"></div>
+                        <div class="player-profile-image" style="background-image: url('{% url 'player_image' %}?id={{ player_details.faceImageId }}'); background-position: center 25%; background-size: 100%;"></div>
                     {% else %}
                         <div class="player-profile-image">
                             {{ player_details.name|slice:":1"|default:"?" }}
@@ -242,6 +242,10 @@
         color: #002147;
         background-repeat: no-repeat;
         border: 1px solid #eee;
+        background-position: center 25%; /* Adjusted to position faces better */
+        background-size: contain; /* Change from 100% to contain to avoid cropping */
+        object-fit: cover;
+        overflow: visible; /* Change from hidden to visible to prevent cropping */
     }
 
     .back-button .btn {
