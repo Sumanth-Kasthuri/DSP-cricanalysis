@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import CustomUserCreationForm
 from .services.cricket_api import *
+from .services.weather_api import get_weather_for_venue
 from django.http import HttpResponse
 import requests
 from django.views.decorators.cache import cache_page
@@ -273,20 +274,136 @@ def match_info_view(request):
     if 'error' in scorecard_data:
         return render(request, 'match_info.html', {'error': scorecard_data['error']})
     
+    # Create venue string for the match
+    venue_str = None
+    if match_details and 'venue' in match_details:
+        if isinstance(match_details['venue'], dict):
+            venue_str = match_details['venue'].get('ground', '') + ', ' + match_details['venue'].get('city', '')
+        else:
+            venue_str = match_details.get('venue', '')
+    else:
+        venue_str = scorecard_data.get('venue', 'Unknown Venue')
+    
+    # Get weather information for the venue
+    weather_data = get_weather_for_venue(venue_str)
+    
     # Prepare context for the template with enhanced details
     context = {
         'match_id': match_id,
         'scoreCard': scorecard_data.get('scoreCard', []),
         'match_details': {
             'matchDescription': match_details.get('matchDesc') if match_details else scorecard_data.get('matchDescription', 'Cricket Match'),
-            'venue': match_details.get('venue', {}).get('ground') + ', ' + match_details.get('venue', {}).get('city') if match_details else scorecard_data.get('venue', 'Unknown Venue'),
+            'venue': venue_str,
             'matchDate': scorecard_data.get('matchDate', ''),
             'status': match_details.get('status') if match_details else scorecard_data.get('status', ''),
             'team1': match_details.get('team1', {}) if match_details else {},
             'team2': match_details.get('team2', {}) if match_details else {},
             'team1_score': match_details.get('team1_score', {}) if match_details else {},
             'team2_score': match_details.get('team2_score', {}) if match_details else {}
-        }
+        },
+        'weather_data': weather_data
     }
     
     return render(request, 'match_info.html', context)
+
+def team_info_view(request):
+    team_id = request.GET.get('id')
+    team_name = request.GET.get('team_name')
+    tab = request.GET.get('tab', 'schedule')  # Default to schedule tab
+    
+    if not team_id and not team_name:
+        # No team ID or team name provided
+        return render(request, 'team_info.html', {'error': 'No team selected'})
+    
+    # First, if we only have team_id but no team_name, fetch the team details from the international teams list
+    if team_id and not team_name:
+        international_teams_data = get_international_teams()
+        all_teams = international_teams_data.get("list", [])
+        
+        # Find the team name that matches the provided team ID
+        for team in all_teams:
+            if str(team.get('teamId')) == str(team_id):
+                team_name = team.get('teamName')
+                team_sname = team.get('teamSName')
+                # Create team details directly from this data
+                team_details = {
+                    'teamName': team_name,
+                    'teamSName': team_sname
+                }
+                break
+    
+    # Get players data for the team (whether we have team_id from URL or found it from team_name)
+    team_players_data = {}
+    
+    if team_id:
+        team_players_data = get_team_players(team_id)
+    elif team_name:
+        # If we only have team_name, find the team_id first
+        international_teams_data = get_international_teams()
+        all_teams = international_teams_data.get("list", [])
+        
+        # Find the team ID that matches the provided team name
+        for team in all_teams:
+            if team.get('teamName') == team_name:
+                team_id = team.get('teamId')
+                team_details = {
+                    'teamName': team_name,
+                    'teamSName': team.get('teamSName', '')
+                }
+                break
+        
+        if team_id:
+            team_players_data = get_team_players(team_id)
+        else:
+            return render(request, 'team_info.html', {'error': f'Team not found: {team_name}'})
+    
+    if 'error' in team_players_data:
+        return render(request, 'team_info.html', {'error': team_players_data['error']})
+    
+    # If team_details wasn't set above, try to extract from the players data
+    if not 'team_details' in locals() or not team_name:
+        # Attempt to extract team name from team_players_data
+        if 'teamName' in team_players_data:
+            team_name = team_players_data['teamName']
+        elif 'name' in team_players_data:
+            team_name = team_players_data['name']
+        
+        team_details = {
+            'teamName': team_name if team_name else "Team Name Not Found",
+            'teamSName': team_players_data.get('teamSName', '')
+        }
+    
+    # Initialize tab_data as empty
+    tab_data = {}
+    
+    # Fetch data based on selected tab
+    if tab == 'schedule':
+        schedule_data = get_team_schedule(team_id)
+        
+        # Debug the schedule data to understand its structure better
+        print("Schedule API Response Keys:", schedule_data.keys() if schedule_data else "No data")
+        
+        # Handle the schedule data - check if it contains "teamMatchesData" as per the API response
+        if schedule_data and 'teamMatchesData' in schedule_data:
+            # Return the full schedule data as is
+            tab_data = schedule_data
+        else:
+            # If the expected structure is not found, provide an error
+            tab_data = {
+                'error': 'No schedule information available for this team'
+            }
+    elif tab == 'players':
+        # For players tab, ensure we have the team name
+        tab_data = {
+            'player': team_players_data.get('player', []),
+            'name': team_details['teamName']
+        }
+    
+    context = {
+        'team_id': team_id,
+        'team_details': team_details,
+        'tab': tab,
+        'tab_data': tab_data
+    }
+    
+    return render(request, 'team_info.html', context)

@@ -227,3 +227,39 @@ def get_match_scorecard(match_id):
         return response.json()
     else:
         return {"error": f"Failed to fetch match scorecard: {response.status_code}"}
+
+def get_team_schedule(team_id):
+    """
+    Get schedule of matches for a specific team
+    """
+    url = f"https://cricbuzz-cricket.p.rapidapi.com/teams/v1/{team_id}/schedule"
+    
+    headers = {
+        "X-RapidAPI-Key": RAPID_API_KEY,
+        "X-RapidAPI-Host": RAPID_API_HOST
+    }
+    
+    response = requests.get(url, headers=headers)
+    
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return {"error": f"Failed to fetch team schedule: {response.status_code}"}
+
+def get_team_players(team_id):
+    """
+    Get players for a specific team
+    """
+    url = f"https://cricbuzz-cricket.p.rapidapi.com/teams/v1/{team_id}/players"
+    
+    headers = {
+        "X-RapidAPI-Key": RAPID_API_KEY,
+        "X-RapidAPI-Host": RAPID_API_HOST
+    }
+    
+    response = requests.get(url, headers=headers)
+    
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return {"error": f"Failed to fetch team players: {response.status_code}"}

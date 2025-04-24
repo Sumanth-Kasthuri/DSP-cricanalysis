@@ -1,0 +1,328 @@
+{% extends 'base.html' %}
+{% load tz %}
+
+{% block content %}
+<div class="container-wrapper">
+    <div class="custom-container">
+        {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+        {% else %}
+            <div class="team-header">
+                <div class="team-info">
+                    <h1>{{ team_details.teamName }}</h1>
+                    <div class="team-country">{{ team_details.teamSName }}</div>
+                </div>
+                <div class="back-button">
+                    <a href="{% url 'teams' %}" class="btn">Back to Teams</a>
+                </div>
+            </div>
+            
+            <div class="team-tabs">
+                <a href="{% url 'team_info' %}?id={{ team_id }}&team_name={{ team_details.teamName|urlencode }}&tab=schedule" class="tab-link {% if tab == 'schedule' %}active{% endif %}">Schedule</a>
+                <a href="{% url 'team_info' %}?id={{ team_id }}&team_name={{ team_details.teamName|urlencode }}&tab=players" class="tab-link {% if tab == 'players' %}active{% endif %}">Players</a>
+            </div>
+            
+            <div class="tab-content">
+                {% if tab == 'schedule' %}
+                    <div class="schedule-container">
+                        <h2>Team Schedule</h2>
+                        
+                        {% if tab_data.error %}
+                            <div class="alert alert-warning">{{ tab_data.error }}</div>
+                        {% else %}
+                            {% if tab_data.teamMatchesData %}
+                                {% for tournament in tab_data.teamMatchesData %}
+                                    {% if tournament.matchDetailsMap %}
+                                        <div class="schedule-card">
+                                            <div class="series-header">
+                                                <h3>{{ tournament.matchDetailsMap.key }}</h3>
+                                            </div>
+                                            
+                                            <div class="matches-list">
+                                                {% for match in tournament.matchDetailsMap.match %}
+                                                    <div class="match-item">
+                                                        <div class="match-teams">
+                                                            <span class="team">{{ match.matchInfo.team1.teamName }}</span>
+                                                            <span class="versus">vs</span>
+                                                            <span class="team">{{ match.matchInfo.team2.teamName }}</span>
+                                                        </div>
+                                                        <div class="match-meta">
+                                                            <div class="match-format">{{ match.matchInfo.matchFormat }}</div>
+                                                            <div class="match-venue">{{ match.matchInfo.venueInfo.ground }}, {{ match.matchInfo.venueInfo.city }}</div>
+                                                            <div class="match-desc">{{ match.matchInfo.matchDesc }}</div>
+                                                            <div class="match-date">{{ match.matchInfo.status|timezone:"UTC"|localtime|date:"M d, Y H:i" }}</div>
+                                                        </div>
+                                                    </div>
+                                                {% empty %}
+                                                    <div class="no-matches">No scheduled matches found for this team.</div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% empty %}
+                                    <div class="no-schedule">No schedule information available for this team.</div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="no-schedule">No schedule information available for this team.</div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                
+                {% elif tab == 'players' %}
+                    <div class="players-container">
+                        <h2>{{ team_details.teamName }} Players</h2>
+                        
+                        {% if tab_data.error %}
+                            <div class="alert alert-warning">{{ tab_data.error }}</div>
+                        {% else %}
+                            <div class="players-grid">
+                                {% for player in tab_data.player %}
+                                    <div class="player-card" onclick="window.location.href='{% url 'player_info' %}?id={{ player.id }}';">
+                                        {% if player.image %}
+                                            <div class="player-image">
+                                                <img src="{% url 'player_image' %}?id={{ player.image }}" alt="{{ player.name }}">
+                                            </div>
+                                        {% endif %}
+                                        <div class="player-details">
+                                            <h3>{{ player.name }}</h3>
+                                            {% if player.role %}
+                                                <div class="player-role">{{ player.role }}</div>
+                                            {% endif %}
+                                            {% if player.battingStyle or player.bowlingStyle %}
+                                                <div class="player-styles">
+                                                    {% if player.battingStyle %}
+                                                        <span class="batting-style">Bat: {{ player.battingStyle }}</span>
+                                                    {% endif %}
+                                                    {% if player.bowlingStyle %}
+                                                        <span class="bowling-style">Bowl: {{ player.bowlingStyle }}</span>
+                                                    {% endif %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% empty %}
+                                    <div class="no-players">No player information available for this team.</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .container-wrapper {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+    
+    .custom-container {
+        width: 90%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 0;
+    }
+    
+    .team-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+    
+    .team-country {
+        color: #666;
+        font-size: 1.2rem;
+        margin-top: 0.5rem;
+    }
+    
+    .back-button .btn {
+        padding: 0.75rem 1.5rem;
+        background-color: #002147;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+    }
+    
+    .back-button .btn:hover {
+        background-color: #001b3a;
+    }
+    
+    .team-tabs {
+        display: flex;
+        border-bottom: 2px solid #002147;
+        margin-bottom: 2rem;
+    }
+    
+    .tab-link {
+        padding: 1rem 2rem;
+        text-decoration: none;
+        color: #666;
+        font-weight: bold;
+        transition: all 0.2s ease;
+    }
+    
+    .tab-link.active {
+        color: #002147;
+        border-bottom: 3px solid #002147;
+        margin-bottom: -2px;
+    }
+    
+    .tab-link:hover {
+        background-color: #f0f0f0;
+        color: #002147;
+        text-decoration: none;
+    }
+    
+    .tab-content {
+        min-height: 500px;
+    }
+    
+    /* Schedule Tab Styles */
+    .schedule-card {
+        background-color: #f9f9f9;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        overflow: hidden;
+    }
+    
+    .series-header {
+        background-color: #002147;
+        color: white;
+        padding: 1rem 1.5rem;
+    }
+    
+    .series-header h3 {
+        margin: 0;
+        font-size: 1.3rem;
+    }
+    
+    .matches-list {
+        padding: 0.5rem;
+    }
+    
+    .match-item {
+        padding: 1rem;
+        border-bottom: 1px solid #e0e0e0;
+        transition: background-color 0.2s;
+    }
+    
+    .match-item:last-child {
+        border-bottom: none;
+    }
+    
+    .match-item:hover {
+        background-color: #f0f0f0;
+    }
+    
+    .match-teams {
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    
+    .versus {
+        color: #666;
+        margin: 0 0.5rem;
+    }
+    
+    .match-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        color: #666;
+    }
+    
+    .match-format {
+        background-color: #002147;
+        color: white;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        margin-right: 1rem;
+    }
+
+    /* Player Tab Styles */
+    .player-category {
+        margin-bottom: 2rem;
+    }
+    
+    .category-title {
+        color: #002147;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #e0e0e0;
+        margin-bottom: 1rem;
+    }
+    
+    .players-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .player-card {
+        background-color: #f9f9f9;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+        cursor: pointer;
+    }
+    
+    .player-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .player-image {
+        height: 200px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #e0e0e0;
+    }
+    
+    .player-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .player-details {
+        padding: 1rem;
+    }
+    
+    .player-details h3 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.1rem;
+    }
+    
+    .player-role {
+        color: #002147;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    
+    .player-styles {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+        font-size: 0.9rem;
+        color: #666;
+    }
+    
+    .no-schedule, .no-players, .no-matches {
+        padding: 2rem;
+        text-align: center;
+        color: #666;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+    }
+</style>
+{% endblock %}

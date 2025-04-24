@@ -59,6 +59,7 @@
                 border-radius: 8px;
                 box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
                 transition: transform 0.2s;
+                cursor: pointer;
             }
             
             .team-card:hover {
@@ -126,7 +127,7 @@
             <div class="vertical-scroll-container">
                 {% for team in teams %}
                     {% if team.teamId %}
-                        <div class="team-card">
+                        <div class="team-card" onclick="location.href='{% url 'team_info' %}?id={{ team.teamId }}&team_name={{ team.teamName|urlencode }}'">
                             {% if team.teamSName %}
                                 <div class="team-image-placeholder">{{ team.teamSName }}</div>
                             {% else %}

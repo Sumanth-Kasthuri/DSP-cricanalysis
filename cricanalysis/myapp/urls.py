@@ -14,4 +14,5 @@ urlpatterns = [
     path('player_info/', views.player_info_view, name='player_info'),
     path('player_image/', views.player_image_proxy, name='player_image'),
     path('match_info/', views.match_info_view, name='match_info'),
+    path('team_info/', views.team_info_view, name='team_info'),
 ]

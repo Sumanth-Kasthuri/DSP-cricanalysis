@@ -181,12 +181,45 @@
                 
                 <!-- Sidebar for Weather and Predictions -->
                 <div class="match-sidebar">
-                    <!-- Weather Section (to be implemented later) -->
+                    <!-- Weather Section -->
                     <div class="sidebar-card weather-card">
                         <h3>Weather at Venue</h3>
-                        <div class="placeholder-content">
-                            Weather information will be displayed here
-                        </div>
+                        {% if weather_data.error %}
+                            <div class="weather-error">
+                                {{ weather_data.error }}
+                            </div>
+                        {% elif weather_data %}
+                            <div class="weather-content">
+                                <div class="weather-location">
+                                    <strong>{{ weather_data.city_name }}</strong>
+                                </div>
+                                <div class="weather-icon">
+                                    <img src="https://openweathermap.org/img/wn/{{ weather_data.icon }}@2x.png" alt="{{ weather_data.description }}">
+                                </div>
+                                <div class="weather-details">
+                                    <div class="temp">{{ weather_data.temperature|floatformat:1 }}°C</div>
+                                    <div class="desc">{{ weather_data.description|title }}</div>
+                                </div>
+                                <div class="weather-stats">
+                                    <div class="weather-stat">
+                                        <span class="stat-label">Feels like:</span>
+                                        <span class="stat-value">{{ weather_data.feels_like|floatformat:1 }}°C</span>
+                                    </div>
+                                    <div class="weather-stat">
+                                        <span class="stat-label">Humidity:</span>
+                                        <span class="stat-value">{{ weather_data.humidity }}%</span>
+                                    </div>
+                                    <div class="weather-stat">
+                                        <span class="stat-label">Wind:</span>
+                                        <span class="stat-value">{{ weather_data.wind_speed|floatformat:1 }} m/s</span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="placeholder-content">
+                                Weather information not available
+                            </div>
+                        {% endif %}
                     </div>
                     
                     <!-- Prediction Section (to be implemented later) -->
@@ -430,6 +463,84 @@
         background-color: #f9f9f9;
         border: 1px solid #e0e0e0;
         border-radius: 8px;
+    }
+    
+    /* Weather Card Styles */
+    .weather-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1rem 0;
+    }
+    
+    .weather-location {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+        text-align: center;
+    }
+    
+    .weather-icon {
+        width: 80px;
+        height: 80px;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    .weather-icon img {
+        width: 100%;
+    }
+    
+    .weather-details {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .temp {
+        font-size: 1.8rem;
+        font-weight: bold;
+        margin-bottom: 0.25rem;
+    }
+    
+    .desc {
+        color: #666;
+        font-size: 1.1rem;
+        text-transform: capitalize;
+    }
+    
+    .weather-stats {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        border-top: 1px dashed #ddd;
+        padding-top: 0.5rem;
+    }
+    
+    .weather-stat {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.25rem 0;
+    }
+    
+    .stat-label {
+        color: #666;
+    }
+    
+    .stat-value {
+        font-weight: 500;
+    }
+    
+    .weather-error {
+        color: #856404;
+        background-color: #fff3cd;
+        border: 1px solid #ffeeba;
+        border-radius: 4px;
+        padding: 1rem;
+        text-align: center;
     }
     
     /* Responsive styles */
