@@ -222,12 +222,45 @@
                         {% endif %}
                     </div>
                     
-                    <!-- Prediction Section (to be implemented later) -->
+                    <!-- Prediction Section -->
                     <div class="sidebar-card prediction-card">
                         <h3>Match Prediction</h3>
-                        <div class="placeholder-content">
-                            AI prediction will be displayed here
-                        </div>
+                        {% if prediction %}
+                            <div class="prediction-content">
+                                <div class="prediction-teams">
+                                    <div class="team">
+                                        <span class="team-name">{{ prediction.team1_name }}</span>
+                                        <div class="progress-bar-container">
+                                            <div class="progress-bar" style="width: {{ prediction.team1_probability }}%"></div>
+                                        </div>
+                                        <div class="probability-container">
+                                            <span class="probability">{{ prediction.team1_probability }}%</span>
+                                        </div>
+                                    </div>
+                                    <div class="team">
+                                        <span class="team-name">{{ prediction.team2_name }}</span>
+                                        <div class="progress-bar-container">
+                                            <div class="progress-bar" style="width: {{ prediction.team2_probability }}%"></div>
+                                        </div>
+                                        <div class="probability-container">
+                                            <span class="probability">{{ prediction.team2_probability }}%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="prediction-result">
+                                    <p>Predicted Winner:</p>
+                                    <p class="winner">{{ prediction.predicted_winner }}</p>
+                                    <p class="confidence">Confidence: <span class="confidence-level {{ prediction.confidence_text|lower }}">{{ prediction.confidence_text }}</span></p>
+                                </div>
+                                <div class="prediction-note">
+                                    Based on team performance metrics and historical data
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="placeholder-content">
+                                Prediction not available for this match
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -535,6 +568,107 @@
     }
     
     .weather-error {
+        color: #856404;
+        background-color: #fff3cd;
+        border: 1px solid #ffeeba;
+        border-radius: 4px;
+        padding: 1rem;
+        text-align: center;
+    }
+    
+    /* Prediction Card Styles */
+    .prediction-content {
+        padding: 1rem 0;
+    }
+    
+    .prediction-teams {
+        margin-bottom: 1rem;
+    }
+    
+    .prediction-teams .team {
+        margin-bottom: 1rem;
+    }
+    
+    .prediction-teams .team-name {
+        display: block;
+        margin-bottom: 0.25rem;
+        font-weight: 500;
+    }
+    
+    .progress-bar-container {
+        height: 10px;
+        background-color: #f0f0f0;
+        border-radius: 5px;
+        overflow: hidden;
+        margin-bottom: 0.25rem;
+    }
+    
+    .progress-bar {
+        height: 100%;
+        background-color: #002147;
+        border-radius: 5px;
+    }
+    
+    .probability-container {
+        text-align: right;
+    }
+    
+    .probability {
+        font-size: 0.9rem;
+        color: #666;
+    }
+    
+    .prediction-result {
+        text-align: center;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px dashed #ddd;
+    }
+    
+    .prediction-result p {
+        margin: 0;
+        line-height: 1.5;
+    }
+    
+    .prediction-result .winner {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #002147;
+        margin: 0.5rem 0;
+    }
+    
+    .confidence {
+        font-size: 0.9rem;
+        color: #666;
+    }
+    
+    .confidence-level {
+        font-weight: 500;
+    }
+    
+    .confidence-level.high {
+        color: #28a745;
+    }
+    
+    .confidence-level.medium {
+        color: #ffc107;
+    }
+    
+    .confidence-level.low {
+        color: #dc3545;
+    }
+    
+    .prediction-note {
+        margin-top: 1rem;
+        padding-top: 0.5rem;
+        border-top: 1px dashed #ddd;
+        text-align: center;
+        font-size: 0.8rem;
+        font-style: italic;
+        color: #888;
+    }
+    
+    .prediction-error {
         color: #856404;
         background-color: #fff3cd;
         border: 1px solid #ffeeba;

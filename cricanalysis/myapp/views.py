@@ -5,6 +5,7 @@ from django.contrib import messages
 from .forms import CustomUserCreationForm
 from .services.cricket_api import *
 from .services.weather_api import get_weather_for_venue
+from .services.prediction_service import predict_match_outcome, format_prediction_for_display, train_models
 from django.http import HttpResponse
 import requests
 from django.views.decorators.cache import cache_page
@@ -287,6 +288,18 @@ def match_info_view(request):
     # Get weather information for the venue
     weather_data = get_weather_for_venue(venue_str)
     
+    # Prepare match prediction if we have team information
+    prediction_data = {}
+    if match_details and 'team1' in match_details and 'team2' in match_details:
+        team1_name = match_details['team1'].get('teamName')
+        team2_name = match_details['team2'].get('teamName')
+        match_format = match_details.get('matchFormat', 'ODI')
+        
+        # Get prediction
+        if team1_name and team2_name:
+            raw_prediction = predict_match_outcome(team1_name, team2_name, match_format)
+            prediction_data = format_prediction_for_display(raw_prediction, team1_name, team2_name)
+    
     # Prepare context for the template with enhanced details
     context = {
         'match_id': match_id,
@@ -299,9 +312,11 @@ def match_info_view(request):
             'team1': match_details.get('team1', {}) if match_details else {},
             'team2': match_details.get('team2', {}) if match_details else {},
             'team1_score': match_details.get('team1_score', {}) if match_details else {},
-            'team2_score': match_details.get('team2_score', {}) if match_details else {}
+            'team2_score': match_details.get('team2_score', {}) if match_details else {},
+            'matchFormat': match_details.get('matchFormat', '') if match_details else scorecard_data.get('matchFormat', '')
         },
-        'weather_data': weather_data
+        'weather_data': weather_data,
+        'prediction': prediction_data
     }
     
     return render(request, 'match_info.html', context)
