@@ -60,7 +60,7 @@ class MatchPredictor:
                 print("Test match model loaded successfully")
                     
             if os.path.exists(self.ipl_model_path):
-                with open(self.ipl_model_path, 'rb') as f:
+                with open(self.ipl_model_path, 'rb') as f:  # Fixed typo here
                     self.ipl_model = pickle.load(f)
                 print("IPL model loaded successfully")
         except Exception as e:
@@ -362,24 +362,58 @@ class MatchPredictor:
             # Get class labels
             classes = le.classes_
             
-            # Find team indices
+            # Find team indices using more flexible matching
             team1_idx = None
             team2_idx = None
             
+            # First try exact match
             for i, team in enumerate(classes):
                 if team == team1:
                     team1_idx = i
                 elif team == team2:
                     team2_idx = i
             
-            # If either team is not in the training data, use a fallback heuristic
+            # If not found, try case-insensitive match
+            if team1_idx is None or team2_idx is None:
+                for i, team in enumerate(classes):
+                    if team1_idx is None and team.lower() == team1.lower():
+                        team1_idx = i
+                    if team2_idx is None and team.lower() == team2.lower():
+                        team2_idx = i
+            
+            # If still not found, try with partial match
+            if team1_idx is None or team2_idx is None:
+                # Get the set of unique teams in the model
+                unique_teams = set(classes)
+                print(f"Available teams in {match_format} model: {sorted(unique_teams)}")
+                
+                # Try to find best matches
+                if team1_idx is None:
+                    for i, team in enumerate(classes):
+                        if team1.lower() in team.lower() or team.lower() in team1.lower():
+                            team1_idx = i
+                            print(f"Matched '{team1}' to '{team}' in model")
+                            break
+                
+                if team2_idx is None:
+                    for i, team in enumerate(classes):
+                        if team2.lower() in team.lower() or team.lower() in team2.lower():
+                            team2_idx = i
+                            print(f"Matched '{team2}' to '{team}' in model")
+                            break
+            
+            # Debug output for team matching
+            print(f"Team1: {team1}, idx: {team1_idx}")
+            print(f"Team2: {team2}, idx: {team2_idx}")
+            
+            # If either team is still not found in the training data, use a fallback heuristic
             if team1_idx is None or team2_idx is None:
                 print(f"Teams not found in model: {team1} or {team2}, using heuristic")
                 return self._heuristic_prediction(team1, team2, team1_stats, team2_stats)
             
             # Get probabilities for each team
-            team1_prob = proba[team1_idx] if team1_idx is not None else 0
-            team2_prob = proba[team2_idx] if team2_idx is not None else 0
+            team1_prob = proba[team1_idx]
+            team2_prob = proba[team2_idx]
             
             # Normalize probabilities to sum to 1
             total = team1_prob + team2_prob
@@ -390,14 +424,45 @@ class MatchPredictor:
                 team1_prob = 0.5
                 team2_prob = 0.5
             
+            # Apply custom weights to favor recent performance over head-to-head
+            h2h_weight = 0.4  # 40% weight for head-to-head
+            recent_form_weight = 0.6  # 60% weight for recent form
+            
+            # Calculate weighted prediction
+            team1_h2h_strength = team1_stats['win_pct_h2h']
+            team2_h2h_strength = team2_stats['win_pct_h2h']
+            team1_form_strength = team1_stats['win_pct']
+            team2_form_strength = team2_stats['win_pct']
+            
+            # Get weighted win probabilities
+            team1_weighted_prob = (h2h_weight * team1_h2h_strength + recent_form_weight * team1_form_strength)
+            team2_weighted_prob = (h2h_weight * team2_h2h_strength + recent_form_weight * team2_form_strength)
+            
+            # Combine model prediction with weighted stats (50/50)
+            team1_final_prob = (team1_prob * 0.5) + (team1_weighted_prob * 0.5)
+            team2_final_prob = (team2_prob * 0.5) + (team2_weighted_prob * 0.5)
+            
+            # Normalize final probabilities
+            total = team1_final_prob + team2_final_prob
+            if total > 0:
+                team1_final_prob = team1_final_prob / total
+                team2_final_prob = team2_final_prob / total
+            else:
+                team1_final_prob = 0.5
+                team2_final_prob = 0.5
+            
             # Determine predicted winner
-            predicted_winner = team1 if team1_prob > team2_prob else team2
+            predicted_winner = team1 if team1_final_prob > team2_final_prob else team2
             
             return {
-                'team1_probability': team1_prob,
-                'team2_probability': team2_prob,
+                'team1_probability': team1_final_prob,
+                'team2_probability': team2_final_prob,
                 'predicted_winner': predicted_winner,
-                'confidence': max(team1_prob, team2_prob)
+                'confidence': max(team1_final_prob, team2_final_prob),
+                'feature_importances': {
+                    'h2h_wins': h2h_weight,
+                    'recent_form': recent_form_weight
+                }
             }
         except Exception as e:
             print(f"Error making prediction: {e}")
@@ -419,13 +484,19 @@ class MatchPredictor:
             dict: Prediction results with probabilities
         """
         # Use weighted combination of stats to calculate team strength
-        team1_strength = (0.3 * team1_stats['win_pct_h2h'] + 
-                         0.4 * team1_stats['win_pct'] + 
-                         0.3 * (team1_stats['recent_wins'] / max(25, team1_stats['recent_wins'] + 1)))
+        # Give 40% weight to head-to-head records and 60% weight to recent form
+        h2h_weight = 0.4
+        recent_form_weight = 0.6
         
-        team2_strength = (0.3 * team2_stats['win_pct_h2h'] + 
-                         0.4 * team2_stats['win_pct'] + 
-                         0.3 * (team2_stats['recent_wins'] / max(25, team2_stats['recent_wins'] + 1)))
+        team1_strength = (
+            h2h_weight * team1_stats['win_pct_h2h'] + 
+            recent_form_weight * team1_stats['win_pct'] 
+        )
+        
+        team2_strength = (
+            h2h_weight * team2_stats['win_pct_h2h'] + 
+            recent_form_weight * team2_stats['win_pct'] 
+        )
         
         # Calculate probabilities
         total = team1_strength + team2_strength
@@ -453,5 +524,9 @@ class MatchPredictor:
             'team2_probability': team2_prob,
             'predicted_winner': predicted_winner,
             'confidence': max(team1_prob, team2_prob),
-            'method': 'heuristic'
+            'method': 'heuristic',
+            'feature_importances': {
+                'h2h_wins': h2h_weight,
+                'recent_form': recent_form_weight
+            }
         }

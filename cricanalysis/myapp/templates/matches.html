@@ -134,6 +134,7 @@
                 <option value="TEST">TEST</option>
                 <option value="T20">T20</option>
             </select>
+            <span id="next-refresh" class="refresh-indicator"></span>
         </div>
 
         <div class="match-section mb-5">
@@ -306,6 +307,27 @@
                         recentNoMatches.style.display = 'none';
                     }
                 });
+
+                // Auto-refresh functionality
+                let timeLeft = 300; // 5 minutes = 300 seconds
+                const refreshIndicator = document.getElementById('next-refresh');
+                
+                function updateRefreshTimer() {
+                    const minutes = Math.floor(timeLeft / 60);
+                    const seconds = timeLeft % 60;
+                    refreshIndicator.textContent = `Next refresh in: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                    
+                    if (timeLeft <= 0) {
+                        // Reload the page with cache-busting parameter to get fresh data
+                        window.location.href = window.location.pathname + '?refresh=' + Date.now();
+                    } else {
+                        timeLeft--;
+                        setTimeout(updateRefreshTimer, 1000);
+                    }
+                }
+                
+                // Start the refresh timer
+                updateRefreshTimer();
             });
         </script>
     </div>

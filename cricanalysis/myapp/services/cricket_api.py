@@ -1,4 +1,6 @@
 import requests
+import time
+import random
 
 # Original API credentials (keeping for reference)
 API_KEY = '17af6b8a-2fd9-45df-be74-b72634b69e1b'
@@ -8,9 +10,12 @@ BASE_URL = 'https://cricapi.com/api/cricket'
 RAPID_API_KEY = '80a106c916mshbc28c87b8a1145fp1317a1jsn9fc2ec8c94ec'
 RAPID_API_HOST = 'cricbuzz-cricket.p.rapidapi.com'
 
-def get_upcoming_matches():
+def get_upcoming_matches(force_refresh=False):
     """
     Fetches all upcoming cricket matches from the API
+    
+    Args:
+        force_refresh (bool): If True, adds a cache-busting parameter to ensure fresh data
     """
     url = "https://cricbuzz-cricket.p.rapidapi.com/matches/v1/upcoming"
     
@@ -19,16 +24,24 @@ def get_upcoming_matches():
         "X-RapidAPI-Host": RAPID_API_HOST
     }
     
-    response = requests.get(url, headers=headers)
+    # Add cache-busting parameter
+    params = {}
+    if force_refresh:
+        params['_'] = int(time.time() * 1000) + random.randint(1, 1000)
+    
+    response = requests.get(url, headers=headers, params=params)
     
     if response.status_code == 200:
         return response.json()
     else:
         return {"error": f"Failed to fetch upcoming matches: {response.status_code}"}
 
-def get_recent_matches():
+def get_recent_matches(force_refresh=False):
     """
     Fetches all recently completed cricket matches from the API
+    
+    Args:
+        force_refresh (bool): If True, adds a cache-busting parameter to ensure fresh data
     """
     url = "https://cricbuzz-cricket.p.rapidapi.com/matches/v1/recent"
     
@@ -37,16 +50,24 @@ def get_recent_matches():
         "X-RapidAPI-Host": RAPID_API_HOST
     }
     
-    response = requests.get(url, headers=headers)
+    # Add cache-busting parameter
+    params = {}
+    if force_refresh:
+        params['_'] = int(time.time() * 1000) + random.randint(1, 1000)
+    
+    response = requests.get(url, headers=headers, params=params)
     
     if response.status_code == 200:
         return response.json()
     else:
         return {"error": f"Failed to fetch recent matches: {response.status_code}"}
 
-def get_live_matches():
+def get_live_matches(force_refresh=False):
     """
     Fetches all currently live cricket matches from the API
+    
+    Args:
+        force_refresh (bool): If True, adds a cache-busting parameter to ensure fresh data
     """
     url = "https://cricbuzz-cricket.p.rapidapi.com/matches/v1/live"
     
@@ -55,7 +76,12 @@ def get_live_matches():
         "X-RapidAPI-Host": RAPID_API_HOST
     }
     
-    response = requests.get(url, headers=headers)
+    # Add cache-busting parameter
+    params = {}
+    if force_refresh:
+        params['_'] = int(time.time() * 1000) + random.randint(1, 1000)
+    
+    response = requests.get(url, headers=headers, params=params)
     
     if response.status_code == 200:
         data = response.json()
@@ -65,13 +91,16 @@ def get_live_matches():
     else:
         return {"error": f"Failed to fetch live matches: {response.status_code}"}
 
-def get_matches():
+def get_matches(force_refresh=False):
     """
     Fetches all cricket matches (upcoming, recent, and live)
+    
+    Args:
+        force_refresh (bool): If True, adds a cache-busting parameter to ensure fresh data
     """
-    upcoming = get_upcoming_matches()
-    recent = get_recent_matches()
-    live = get_live_matches()
+    upcoming = get_upcoming_matches(force_refresh)
+    recent = get_recent_matches(force_refresh)
+    live = get_live_matches(force_refresh)
     
     return {
         "upcoming": upcoming,
@@ -210,9 +239,13 @@ def get_player_bowling_stats(player_id):
     else:
         return {"error": f"Failed to fetch bowling stats: {response.status_code}"}
 
-def get_match_scorecard(match_id):
+def get_match_scorecard(match_id, force_refresh=False):
     """
     Get detailed scorecard for a specific match
+    
+    Args:
+        match_id (str): ID of the match
+        force_refresh (bool): If True, adds a cache-busting parameter to ensure fresh data
     """
     url = f"https://cricbuzz-cricket.p.rapidapi.com/mcenter/v1/{match_id}/hscard"
     
@@ -221,7 +254,12 @@ def get_match_scorecard(match_id):
         "X-RapidAPI-Host": RAPID_API_HOST
     }
     
-    response = requests.get(url, headers=headers)
+    # Add cache-busting parameter
+    params = {}
+    if force_refresh:
+        params['_'] = int(time.time() * 1000) + random.randint(1, 1000)
+    
+    response = requests.get(url, headers=headers, params=params)
     
     if response.status_code == 200:
         return response.json()

@@ -33,6 +33,7 @@
                 </div>
                 <div class="back-button">
                     <a href="{% url 'matches' %}" class="btn">Back to Matches</a>
+                    <span id="next-refresh" class="refresh-indicator"></span>
                 </div>
             </div>
 
@@ -225,7 +226,11 @@
                     <!-- Prediction Section -->
                     <div class="sidebar-card prediction-card">
                         <h3>Match Prediction</h3>
-                        {% if prediction %}
+                        {% if is_finished %}
+                            <div class="match-finished-message">
+                                This match is finished, hence there is no prediction available
+                            </div>
+                        {% elif prediction %}
                             <div class="prediction-content">
                                 <div class="prediction-teams">
                                     <div class="team">
@@ -251,6 +256,33 @@
                                     <p>Predicted Winner:</p>
                                     <p class="winner">{{ prediction.predicted_winner }}</p>
                                     <p class="confidence">Confidence: <span class="confidence-level {{ prediction.confidence_text|lower }}">{{ prediction.confidence_text }}</span></p>
+                                    
+                                    <!-- New section to display prediction factors -->
+                                    <div class="prediction-factors">
+                                        <h4>Prediction Factors:</h4>
+                                        <div class="factor-bars">
+                                            <div class="factor">
+                                                <span class="factor-label">Recent Form</span>
+                                                <div class="factor-bar-container">
+                                                    <div class="factor-bar recent-form" style="width: {{ prediction.recent_form_weight }}%"></div>
+                                                    <span class="factor-value">{{ prediction.recent_form_weight }}%</span>
+                                                </div>
+                                            </div>
+                                            <div class="factor">
+                                                <span class="factor-label">Head-to-Head</span>
+                                                <div class="factor-bar-container">
+                                                    <div class="factor-bar h2h" style="width: {{ prediction.h2h_weight }}%"></div>
+                                                    <span class="factor-value">{{ prediction.h2h_weight }}%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    {% if prediction.explanation %}
+                                        <div class="prediction-explanation">
+                                            <p>{{ prediction.explanation }}</p>
+                                        </div>
+                                    {% endif %}
                                 </div>
                                 <div class="prediction-note">
                                     Based on team performance metrics and historical data
@@ -677,6 +709,81 @@
         text-align: center;
     }
     
+    /* New styles for prediction factors */
+    .prediction-factors {
+        margin-top: 1.5rem;
+        padding-top: 0.5rem;
+        border-top: 1px dashed #ddd;
+    }
+    
+    .prediction-factors h4 {
+        font-size: 1rem;
+        color: #444;
+        margin-bottom: 0.75rem;
+        text-align: center;
+    }
+    
+    .factor-bars {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .factor {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+    }
+    
+    .factor-label {
+        flex: 0 0 100px;
+        font-size: 0.9rem;
+        color: #555;
+    }
+    
+    .factor-bar-container {
+        flex: 1;
+        height: 12px;
+        background-color: #f0f0f0;
+        border-radius: 6px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .factor-bar {
+        height: 100%;
+        border-radius: 6px;
+    }
+    
+    .factor-bar.recent-form {
+        background-color: #4caf50;
+    }
+    
+    .factor-bar.h2h {
+        background-color: #2196f3;
+    }
+    
+    .factor-value {
+        position: absolute;
+        right: 5px;
+        top: -2px;
+        font-size: 0.8rem;
+        color: #333;
+        font-weight: 500;
+    }
+    
+    .prediction-explanation {
+        margin-top: 1rem;
+        padding: 0.75rem;
+        background-color: #f9f9f9;
+        border: 1px solid #eee;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        color: #333;
+        text-align: center;
+    }
+
     /* Responsive styles */
     @media (max-width: 992px) {
         .content-grid {
@@ -706,5 +813,55 @@
             max-width: 150px;
         }
     }
+
+    /* Match finished message style */
+    .match-finished-message {
+        padding: 2rem;
+        text-align: center;
+        color: #666;
+        font-style: italic;
+        background-color: #f0f0f0;
+        border-radius: 4px;
+    }
+
+    .refresh-indicator {
+        margin-left: 15px;
+        font-size: 0.9rem;
+        color: #666;
+        font-style: italic;
+    }
+    
+    .back-button {
+        display: flex;
+        align-items: center;
+    }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-refresh functionality
+        let timeLeft = 300; // 5 minutes = 300 seconds
+        const refreshIndicator = document.getElementById('next-refresh');
+        
+        function updateRefreshTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            refreshIndicator.textContent = `Auto-updating in: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            
+            if (timeLeft <= 0) {
+                // Reload the page with the match ID and a cache-busting parameter to get fresh data
+                const currentUrl = new URL(window.location.href);
+                const matchId = currentUrl.searchParams.get('id');
+                const newUrl = `${window.location.pathname}?id=${matchId}&refresh=${Date.now()}`;
+                window.location.href = newUrl;
+            } else {
+                timeLeft--;
+                setTimeout(updateRefreshTimer, 1000);
+            }
+        }
+        
+        // Start the refresh timer
+        updateRefreshTimer();
+    });
+</script>
 {% endblock %}

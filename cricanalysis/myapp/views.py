@@ -9,6 +9,7 @@ from .services.prediction_service import predict_match_outcome, format_predictio
 from django.http import HttpResponse
 import requests
 from django.views.decorators.cache import cache_page
+import time
 
 
 # Create your views here.
@@ -46,11 +47,14 @@ def profile_view(request):
     user = request.user
     if request.method == 'POST':
         if 'update-profile-form' in request.POST:
+            username = request.POST.get('username')
             first_name = request.POST.get('first_name')
             last_name = request.POST.get('last_name')
             email = request.POST.get('email')
 
             # Update the user's profile fields
+            if username:
+                user.username = username
             if first_name:
                 user.first_name = first_name
             if last_name:
@@ -80,6 +84,15 @@ def profile_view(request):
                 user.save()
                 update_session_auth_hash(request, user)  
                 messages.success(request, "Password changed successfully.", extra_tags='security')
+                
+        elif 'delete-account-form' in request.POST:
+            # Delete the user's account
+            user.delete()
+            # Log the user out
+            logout(request)
+            # Redirect to home page with a message
+            messages.success(request, 'Your account has been successfully deleted.')
+            return redirect('home')
 
     return render(request, 'profile.html')
 
@@ -119,21 +132,25 @@ def extract_matches(match_type_data):
     return matches
 
 def matches_view(request):
-    # Fetch match data from API services
-    live_data = get_live_matches()
-    upcoming_data = get_upcoming_matches()
-    recent_data = get_recent_matches()
+    # Fetch match data from API services with force_refresh=True to ensure fresh data
+    live_data = get_live_matches(force_refresh=True)
+    upcoming_data = get_upcoming_matches(force_refresh=True)
+    recent_data = get_recent_matches(force_refresh=True)
     
     # Process each type of match data
     live_matches = extract_matches(live_data)
     upcoming_matches = extract_matches(upcoming_data)
     recent_matches = extract_matches(recent_data)
     
+    # Add timestamp to prevent browser caching
+    timestamp = int(time.time())
+    
     # Pass the processed data to the template
     return render(request, 'matches.html', {
         'live_matches': live_matches,
         'upcoming_matches': upcoming_matches,
         'recent_matches': recent_matches,
+        'timestamp': timestamp,
     })
 
 def teams_views(request):
@@ -231,6 +248,16 @@ def player_image_proxy(request):
             return HttpResponse(status=404)
     except Exception as e:
         return HttpResponse(status=500)
+    
+def is_ipl_team(team_name):
+    """Check if a team is an IPL team"""
+    ipl_teams = [
+        'chennai super kings', 'delhi capitals', 'gujarat titans', 
+        'kolkata knight riders', 'lucknow super giants', 'mumbai indians', 
+        'punjab kings', 'rajasthan royals', 'royal challengers bangalore', 
+        'sunrisers hyderabad'
+    ]
+    return team_name.lower() in ipl_teams
 
 def match_info_view(request):
     match_id = request.GET.get('id')
@@ -241,35 +268,37 @@ def match_info_view(request):
     
     # First, get the detailed match data to ensure we have venue, teams, and scores
     match_details = None
+    is_finished = False
     
-    # Check in live matches
-    live_data = get_live_matches()
+    # Check in live matches with force_refresh=True to get latest data
+    live_data = get_live_matches(force_refresh=True)
     live_matches = extract_matches(live_data)
     for match in live_matches:
         if str(match.get('matchId')) == str(match_id):
             match_details = match
             break
     
-    # If not found in live, check in upcoming
+    # If not found in live, check in upcoming with force_refresh=True
     if not match_details:
-        upcoming_data = get_upcoming_matches()
+        upcoming_data = get_upcoming_matches(force_refresh=True)
         upcoming_matches = extract_matches(upcoming_data)
         for match in upcoming_matches:
             if str(match.get('matchId')) == str(match_id):
                 match_details = match
                 break
     
-    # If not found in upcoming, check in recent
+    # If not found in upcoming, check in recent with force_refresh=True
     if not match_details:
-        recent_data = get_recent_matches()
+        recent_data = get_recent_matches(force_refresh=True)
         recent_matches = extract_matches(recent_data)
         for match in recent_matches:
             if str(match.get('matchId')) == str(match_id):
                 match_details = match
+                is_finished = True  # Match is in recent matches, so it's finished
                 break
     
-    # Get match scorecard data
-    scorecard_data = get_match_scorecard(match_id)
+    # Get match scorecard data with force_refresh=True
+    scorecard_data = get_match_scorecard(match_id, force_refresh=True)
     
     # Check for errors in the API response
     if 'error' in scorecard_data:
@@ -288,17 +317,27 @@ def match_info_view(request):
     # Get weather information for the venue
     weather_data = get_weather_for_venue(venue_str)
     
-    # Prepare match prediction if we have team information
+    # Prepare match prediction if we have team information AND the match is not finished
     prediction_data = {}
-    if match_details and 'team1' in match_details and 'team2' in match_details:
+    if match_details and 'team1' in match_details and 'team2' in match_details and not is_finished:
         team1_name = match_details['team1'].get('teamName')
         team2_name = match_details['team2'].get('teamName')
+        
+        # Determine match format - check if these are IPL teams
         match_format = match_details.get('matchFormat', 'ODI')
+        
+        # Override the match format to IPL if these are IPL teams
+        if team1_name and team2_name and (is_ipl_team(team1_name) or is_ipl_team(team2_name)):
+            match_format = 'IPL'
+            print(f"Detected IPL teams: {team1_name} vs {team2_name}, using IPL model")
         
         # Get prediction
         if team1_name and team2_name:
             raw_prediction = predict_match_outcome(team1_name, team2_name, match_format)
             prediction_data = format_prediction_for_display(raw_prediction, team1_name, team2_name)
+    
+    # Add timestamp to prevent browser caching
+    timestamp = int(time.time())
     
     # Prepare context for the template with enhanced details
     context = {
@@ -316,7 +355,9 @@ def match_info_view(request):
             'matchFormat': match_details.get('matchFormat', '') if match_details else scorecard_data.get('matchFormat', '')
         },
         'weather_data': weather_data,
-        'prediction': prediction_data
+        'prediction': prediction_data,
+        'is_finished': is_finished,
+        'timestamp': timestamp,
     }
     
     return render(request, 'match_info.html', context)

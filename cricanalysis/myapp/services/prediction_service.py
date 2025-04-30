@@ -49,10 +49,16 @@ def predict_match_outcome(team1_name, team2_name, match_format='ODI'):
     else:
         logger.warning(f"Unknown match format: {match_format}, defaulting to ODI")
         format_normalized = 'ODI'
+    
+    logger.info(f"Predicting {format_normalized} match: {team1_name} vs {team2_name}")
         
     try:
         predictor = get_match_predictor()
         prediction = predictor.predict_match(format_normalized, team1_name, team2_name)
+        
+        # Log the prediction for debugging
+        logger.info(f"Prediction result: {prediction}")
+        
         return prediction
     except Exception as e:
         logger.error(f"Error predicting match outcome: {e}")
@@ -104,11 +110,58 @@ def format_prediction_for_display(prediction, team1_name, team2_name):
     else:
         confidence_text = 'Low'
     
+    # Get feature importances if available
+    feature_importances = prediction.get('feature_importances', {})
+    
+    # Calculate weights in percentages
+    h2h_weight_pct = int(round(feature_importances.get('h2h_wins', 0.4) * 100))
+    recent_form_weight_pct = int(round(feature_importances.get('recent_form', 0.6) * 100))
+    
+    # Default method is ML prediction unless specified otherwise
+    method = prediction.get('method', 'machine learning')
+    
+    # Generate explanation text
+    if method == 'heuristic':
+        explanation = f"Prediction based on {recent_form_weight_pct}% recent form and {h2h_weight_pct}% head-to-head records."
+    else:
+        explanation = f"Prediction using machine learning with {recent_form_weight_pct}% weight on recent form and {h2h_weight_pct}% on head-to-head records."
+    
     return {
         'team1_name': team1_name,
         'team2_name': team2_name,
         'team1_probability': team1_probability,
         'team2_probability': team2_probability,
         'predicted_winner': predicted_winner,
-        'confidence_text': confidence_text
+        'confidence_text': confidence_text,
+        'h2h_weight': h2h_weight_pct,
+        'recent_form_weight': recent_form_weight_pct, 
+        'prediction_method': method,
+        'explanation': explanation
     }
+
+def generate_prediction_explanation(prediction, team1_name, team2_name):
+    """
+    Generate an explanation for the prediction based on the available features
+    
+    Args:
+        prediction (dict): Prediction results from predict_match_outcome
+        team1_name (str): Name of team 1
+        team2_name (str): Name of team 2
+        
+    Returns:
+        str: Explanation of the prediction
+    """
+    winner_name = prediction['predicted_winner']
+    loser_name = team2_name if winner_name == team1_name else team1_name
+    
+    # Get feature importances if available
+    features = prediction.get('feature_importances', {})
+    
+    # Base explanation
+    if 'h2h_wins' in features and 'recent_form' in features:
+        if features['h2h_wins'] > features['recent_form']:
+            return f"Prediction based primarily on head-to-head record between the teams."
+        else:
+            return f"Prediction based primarily on recent team performance and current form."
+    else:
+        return f"Prediction based on historical performance data and current team statistics."
