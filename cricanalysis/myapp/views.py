@@ -317,6 +317,11 @@ def match_info_view(request):
     # Get weather information for the venue
     weather_data = get_weather_for_venue(venue_str)
     
+    # Check if match is in second innings with scores
+    is_second_innings = False
+    if match_details and match_details.get('team1_score') and match_details.get('team2_score'):
+        is_second_innings = True
+    
     # Prepare match prediction if we have team information AND the match is not finished
     prediction_data = {}
     if match_details and 'team1' in match_details and 'team2' in match_details and not is_finished:
@@ -331,9 +336,36 @@ def match_info_view(request):
             match_format = 'IPL'
             print(f"Detected IPL teams: {team1_name} vs {team2_name}, using IPL model")
         
-        # Get prediction
+        # Get prediction - include match details for potential live predictions in second innings
         if team1_name and team2_name:
-            raw_prediction = predict_match_outcome(team1_name, team2_name, match_format)
+            # Prepare the match details object with necessary information for live prediction
+            prediction_match_details = {
+                'match_format': match_format,
+                'team1_name': team1_name,
+                'team2_name': team2_name,
+                'team1_score': {},
+                'team2_score': {}
+            }
+            
+            # Format team scores for live prediction if they exist
+            if match_details.get('team1_score'):
+                team1_score = match_details.get('team1_score', {})
+                prediction_match_details['team1_score'] = {
+                    'runs': team1_score.get('runs'),
+                    'wickets': team1_score.get('wickets'),
+                    'overs': team1_score.get('overs')
+                }
+                
+            if match_details.get('team2_score'):
+                team2_score = match_details.get('team2_score', {})
+                prediction_match_details['team2_score'] = {
+                    'runs': team2_score.get('runs'),
+                    'wickets': team2_score.get('wickets'),
+                    'overs': team2_score.get('overs')
+                }
+            
+            # Get prediction with match details for live prediction during second innings
+            raw_prediction = predict_match_outcome(team1_name, team2_name, match_format, prediction_match_details)
             prediction_data = format_prediction_for_display(raw_prediction, team1_name, team2_name)
     
     # Add timestamp to prevent browser caching
@@ -357,6 +389,7 @@ def match_info_view(request):
         'weather_data': weather_data,
         'prediction': prediction_data,
         'is_finished': is_finished,
+        'is_second_innings': is_second_innings,
         'timestamp': timestamp,
     }
     

@@ -265,6 +265,53 @@
                                     <div class="prediction-factors">
                                         <h4>Prediction Factors:</h4>
                                         <div class="factor-bars">
+                                            {% if is_second_innings %}
+                                            <div class="factor">
+                                                <span class="factor-label">Live Situation</span>
+                                                <div class="factor-bar-container">
+                                                    <div class="factor-bar live-situation" style="width: 50%"></div>
+                                                    <span class="factor-value">50%</span>
+                                                </div>
+                                            </div>
+                                            <div class="factor">
+                                                <span class="factor-label">Historical Data</span>
+                                                <div class="factor-bar-container">
+                                                    <div class="factor-bar historical" style="width: 50%"></div>
+                                                    <span class="factor-value">50%</span>
+                                                </div>
+                                            </div>
+                                            {% if prediction.live_match_situation %}
+                                            <div class="live-match-situation">
+                                                <h5>Live Chase Status:</h5>
+                                                <ul>
+                                                    {% if prediction.live_match_situation.runs_needed %}
+                                                    <li>
+                                                        <span class="situation-label">Runs needed:</span>
+                                                        <span class="situation-value">{{ prediction.live_match_situation.runs_needed }}</span>
+                                                    </li>
+                                                    {% endif %}
+                                                    {% if prediction.live_match_situation.balls_left %}
+                                                    <li>
+                                                        <span class="situation-label">Balls left:</span>
+                                                        <span class="situation-value">{{ prediction.live_match_situation.balls_left }} ({{ prediction.live_match_situation.overs_left|floatformat:1 }} overs)</span>
+                                                    </li>
+                                                    {% endif %}
+                                                    {% if prediction.live_match_situation.wickets_left %}
+                                                    <li>
+                                                        <span class="situation-label">Wickets left:</span>
+                                                        <span class="situation-value">{{ prediction.live_match_situation.wickets_left }}</span>
+                                                    </li>
+                                                    {% endif %}
+                                                    {% if prediction.live_match_situation.required_run_rate %}
+                                                    <li>
+                                                        <span class="situation-label">Required rate:</span>
+                                                        <span class="situation-value">{{ prediction.live_match_situation.required_run_rate|floatformat:2 }} runs/over</span>
+                                                    </li>
+                                                    {% endif %}
+                                                </ul>
+                                            </div>
+                                            {% endif %}
+                                            {% else %}
                                             <div class="factor">
                                                 <span class="factor-label">Recent Form</span>
                                                 <div class="factor-bar-container">
@@ -279,6 +326,7 @@
                                                     <span class="factor-value">{{ prediction.h2h_weight }}%</span>
                                                 </div>
                                             </div>
+                                            {% endif %}
                                         </div>
                                     </div>
                                     
@@ -289,7 +337,11 @@
                                     {% endif %}
                                 </div>
                                 <div class="prediction-note">
+                                    {% if is_second_innings %}
+                                    Based on 50% live match situation and 50% historical data
+                                    {% else %}
                                     Based on team performance metrics and historical data
+                                    {% endif %}
                                 </div>
                             </div>
                         {% else %}
@@ -769,6 +821,14 @@
         background-color: #2196f3;
     }
     
+    .factor-bar.live-situation {
+        background-color: #ff9800;
+    }
+    
+    .factor-bar.historical {
+        background-color: #9c27b0;
+    }
+    
     .factor-value {
         position: absolute;
         right: 5px;
@@ -787,6 +847,49 @@
         font-size: 0.9rem;
         color: #333;
         text-align: center;
+    }
+
+    /* Live match situation styles */
+    .live-match-situation {
+        margin-top: 1rem;
+        background-color: #fff8e1;
+        border: 1px solid #ffe082;
+        border-radius: 4px;
+        padding: 0.75rem;
+    }
+    
+    .live-match-situation h5 {
+        color: #e65100;
+        font-size: 0.9rem;
+        margin: 0 0 0.5rem 0;
+        text-align: center;
+    }
+    
+    .live-match-situation ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .live-match-situation li {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.25rem 0;
+        font-size: 0.85rem;
+        border-bottom: 1px dotted #ffe082;
+    }
+    
+    .live-match-situation li:last-child {
+        border-bottom: none;
+    }
+    
+    .situation-label {
+        color: #666;
+    }
+    
+    .situation-value {
+        font-weight: 500;
+        color: #333;
     }
 
     /* Match finished message style */
@@ -946,7 +1049,9 @@
             const seconds = timeLeft % 60;
             // Update both timers with the same countdown
             refreshIndicator.textContent = `Auto-updating in: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-            predictionRefreshIndicator.textContent = `Updates in: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            if (predictionRefreshIndicator) {
+                predictionRefreshIndicator.textContent = `Updates in: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            }
             
             if (timeLeft <= 0) {
                 // Reload the page with the match ID and a cache-busting parameter to get fresh data
