@@ -22,13 +22,18 @@
             <div class="horizontal-scroll-container">
                 <div class="horizontal-scroll">
                     {% for match in live_matches %}
-                        <div class="card" data-format="{{ match.matchFormat }}" onclick="location.href='{% url 'match_info' %}?id={{ match.matchId }}'">
+                        <div class="card {% if user.is_authenticated and match.team1.teamId|stringformat:'s' in favorite_team_ids or match.team2.teamId|stringformat:'s' in favorite_team_ids %}favorite-match{% endif %}" data-format="{{ match.matchFormat }}" onclick="location.href='{% url 'match_info' %}?id={{ match.matchId }}'">
                             <div class="card-header bg-danger">
                                 <h3>
                                     <a href="{% url 'team_info' %}?team_name={{ match.team1.teamName }}" onclick="event.stopPropagation();">{{ match.team1.teamName }}</a> 
                                     vs 
                                     <a href="{% url 'team_info' %}?team_name={{ match.team2.teamName }}" onclick="event.stopPropagation();">{{ match.team2.teamName }}</a>
                                 </h3>
+                                {% if user.is_authenticated and match.team1.teamId|stringformat:'s' in favorite_team_ids or match.team2.teamId|stringformat:'s' in favorite_team_ids %}
+                                    <div class="favorite-team-indicator">
+                                        <i class="fas fa-star"></i> Your favorite team is playing!
+                                    </div>
+                                {% endif %}
                             </div>
                             <div class="card-body">
                                 <p><strong>Format:</strong> {{ match.matchFormat }}</p>
@@ -56,13 +61,18 @@
             <div class="horizontal-scroll-container">
                 <div class="horizontal-scroll">
                     {% for match in upcoming_matches %}
-                        <div class="card" data-format="{{ match.matchFormat }}" onclick="location.href='{% url 'match_info' %}?id={{ match.matchId }}'">
+                        <div class="card {% if user.is_authenticated and match.team1.teamId|stringformat:'s' in favorite_team_ids or match.team2.teamId|stringformat:'s' in favorite_team_ids %}favorite-match{% endif %}" data-format="{{ match.matchFormat }}" onclick="location.href='{% url 'match_info' %}?id={{ match.matchId }}'">
                             <div class="card-header bg-primary">
                                 <h3>
                                     <a href="{% url 'team_info' %}?team_name={{ match.team1.teamName }}" onclick="event.stopPropagation();">{{ match.team1.teamName }}</a> 
                                     vs 
                                     <a href="{% url 'team_info' %}?team_name={{ match.team2.teamName }}" onclick="event.stopPropagation();">{{ match.team2.teamName }}</a>
                                 </h3>
+                                {% if user.is_authenticated and match.team1.teamId|stringformat:'s' in favorite_team_ids or match.team2.teamId|stringformat:'s' in favorite_team_ids %}
+                                    <div class="favorite-team-indicator">
+                                        <i class="fas fa-star"></i> Your favorite team is playing!
+                                    </div>
+                                {% endif %}
                             </div>
                             <div class="card-body">
                                 <p><strong>Format:</strong> {{ match.matchFormat }}</p>
@@ -84,13 +94,18 @@
             <div class="horizontal-scroll-container">
                 <div class="horizontal-scroll">
                     {% for match in recent_matches %}
-                        <div class="card" data-format="{{ match.matchFormat }}" onclick="location.href='{% url 'match_info' %}?id={{ match.matchId }}'">
+                        <div class="card {% if user.is_authenticated and match.team1.teamId|stringformat:'s' in favorite_team_ids or match.team2.teamId|stringformat:'s' in favorite_team_ids %}favorite-match{% endif %}" data-format="{{ match.matchFormat }}" onclick="location.href='{% url 'match_info' %}?id={{ match.matchId }}'">
                             <div class="card-header bg-secondary">
                                 <h3>
                                     <a href="{% url 'team_info' %}?team_name={{ match.team1.teamName }}" onclick="event.stopPropagation();">{{ match.team1.teamName }}</a> 
                                     vs 
                                     <a href="{% url 'team_info' %}?team_name={{ match.team2.teamName }}" onclick="event.stopPropagation();">{{ match.team2.teamName }}</a>
                                 </h3>
+                                {% if user.is_authenticated and match.team1.teamId|stringformat:'s' in favorite_team_ids or match.team2.teamId|stringformat:'s' in favorite_team_ids %}
+                                    <div class="favorite-team-indicator">
+                                        <i class="fas fa-star"></i> Your favorite team played!
+                                    </div>
+                                {% endif %}
                             </div>
                             <div class="card-body">
                                 <p><strong>Format:</strong> {{ match.matchFormat }}</p>
@@ -226,6 +241,27 @@
             .card-header a {
                 color: inherit;
                 text-decoration: underline;
+            }
+
+            /* Favorite team styles */
+            .favorite-match {
+                border: 2px solid gold;
+                box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            }
+
+            .favorite-team-indicator {
+                background-color: rgba(255, 255, 255, 0.2);
+                border-radius: 4px;
+                padding: 5px 8px;
+                margin-top: 8px;
+                font-size: 0.9rem;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+
+            .favorite-team-indicator i {
+                color: gold;
             }
 
             /* Format filter styles */

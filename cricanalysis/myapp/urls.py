@@ -15,4 +15,6 @@ urlpatterns = [
     path('player_image/', views.player_image_proxy, name='player_image'),
     path('match_info/', views.match_info_view, name='match_info'),
     path('team_info/', views.team_info_view, name='team_info'),
+    path('add_favorite_team/', views.add_favorite_team, name='add_favorite_team'),
+    path('remove_favorite_team/', views.remove_favorite_team, name='remove_favorite_team'),
 ]

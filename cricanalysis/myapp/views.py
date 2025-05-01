@@ -1,8 +1,10 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import JsonResponse
 from .forms import CustomUserCreationForm
+from .models import FavoriteTeam
 from .services.cricket_api import *
 from .services.weather_api import get_weather_for_venue
 from .services.prediction_service import predict_match_outcome, format_prediction_for_display, train_models
@@ -131,6 +133,7 @@ def extract_matches(match_type_data):
                 })
     return matches
 
+# Update matches_view to include user's favorite teams
 def matches_view(request):
     # Fetch match data from API services with force_refresh=True to ensure fresh data
     live_data = get_live_matches(force_refresh=True)
@@ -142,6 +145,12 @@ def matches_view(request):
     upcoming_matches = extract_matches(upcoming_data)
     recent_matches = extract_matches(recent_data)
     
+    # Get user's favorite teams if logged in
+    favorite_team_ids = []
+    if request.user.is_authenticated:
+        favorite_team_ids = list(FavoriteTeam.objects.filter(
+            user=request.user).values_list('team_id', flat=True))
+    
     # Add timestamp to prevent browser caching
     timestamp = int(time.time())
     
@@ -150,6 +159,7 @@ def matches_view(request):
         'live_matches': live_matches,
         'upcoming_matches': upcoming_matches,
         'recent_matches': recent_matches,
+        'favorite_team_ids': favorite_team_ids,
         'timestamp': timestamp,
     })
 
@@ -160,8 +170,15 @@ def teams_views(request):
     # Extract teams from API response
     all_teams = international_teams_data.get("list", [])
     
+    # Get user's favorite teams if logged in
+    favorite_team_ids = []
+    if request.user.is_authenticated:
+        favorite_team_ids = list(FavoriteTeam.objects.filter(
+            user=request.user).values_list('team_id', flat=True))
+    
     return render(request, 'teams.html', {
-        'teams': all_teams
+        'teams': all_teams,
+        'favorite_team_ids': favorite_team_ids
     })
 
 def players_view(request):
@@ -496,3 +513,50 @@ def team_info_view(request):
     }
     
     return render(request, 'team_info.html', context)
+
+@login_required
+def add_favorite_team(request):
+    if request.method == 'POST':
+        team_id = request.POST.get('team_id')
+        team_name = request.POST.get('team_name')
+        team_sname = request.POST.get('team_sname', '')
+        
+        if not team_id or not team_name:
+            return JsonResponse({'success': False, 'message': 'Team information is incomplete'})
+        
+        # Check if this team is already a favorite
+        existing = FavoriteTeam.objects.filter(user=request.user, team_id=team_id).exists()
+        if existing:
+            return JsonResponse({'success': False, 'message': 'This team is already in your favorites'})
+        
+        # Add the team to favorites
+        favorite = FavoriteTeam(
+            user=request.user,
+            team_id=team_id,
+            team_name=team_name,
+            team_sname=team_sname
+        )
+        favorite.save()
+        
+        return JsonResponse({'success': True, 'message': f'{team_name} added to favorites'})
+    
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+@login_required
+def remove_favorite_team(request):
+    if request.method == 'POST':
+        team_id = request.POST.get('team_id')
+        
+        if not team_id:
+            return JsonResponse({'success': False, 'message': 'Team ID is required'})
+        
+        # Find and delete the favorite
+        favorite = FavoriteTeam.objects.filter(user=request.user, team_id=team_id).first()
+        if favorite:
+            team_name = favorite.team_name
+            favorite.delete()
+            return JsonResponse({'success': True, 'message': f'{team_name} removed from favorites'})
+        else:
+            return JsonResponse({'success': False, 'message': 'Team was not in your favorites'})
+    
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})

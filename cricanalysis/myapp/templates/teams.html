@@ -8,21 +8,44 @@
         <!-- Teams Section -->
         <div class="teams-section">
             <h2>International Cricket Teams</h2>
+            
+            <!-- Notification area for success/error messages -->
+            <div id="notification-area" class="notification-area" style="display: none;"></div>
+            
             <div class="vertical-scroll-container">
                 {% for team in teams %}
                     {% if team.teamId %}
-                        <div class="team-card" onclick="location.href='{% url 'team_info' %}?id={{ team.teamId }}&team_name={{ team.teamName|urlencode }}'">
-                            {% if team.teamSName %}
-                                <div class="team-image-placeholder">{{ team.teamSName }}</div>
-                            {% else %}
-                                <div class="team-image-placeholder">{{ team.teamName|slice:":2" }}</div>
-                            {% endif %}
-                            <div class="team-info">
-                                <div class="team-name">{{ team.teamName }}</div>
+                        <div class="team-card">
+                            <div class="team-card-content" onclick="location.href='{% url 'team_info' %}?id={{ team.teamId }}&team_name={{ team.teamName|urlencode }}'">
                                 {% if team.teamSName %}
-                                    <div class="team-short-name">{{ team.teamSName }}</div>
+                                    <div class="team-image-placeholder">{{ team.teamSName }}</div>
+                                {% else %}
+                                    <div class="team-image-placeholder">{{ team.teamName|slice:":2" }}</div>
                                 {% endif %}
+                                <div class="team-info">
+                                    <div class="team-name">{{ team.teamName }}</div>
+                                    {% if team.teamSName %}
+                                        <div class="team-short-name">{{ team.teamSName }}</div>
+                                    {% endif %}
+                                </div>
                             </div>
+                            {% if user.is_authenticated %}
+                                {% if team.teamId|stringformat:"s" in favorite_team_ids %}
+                                    <button class="favorite-btn remove-favorite" 
+                                            data-team-id="{{ team.teamId }}" 
+                                            data-team-name="{{ team.teamName }}" 
+                                            data-team-sname="{{ team.teamSName }}">
+                                        <i class="fas fa-star"></i> Remove
+                                    </button>
+                                {% else %}
+                                    <button class="favorite-btn add-favorite" 
+                                            data-team-id="{{ team.teamId }}" 
+                                            data-team-name="{{ team.teamName }}" 
+                                            data-team-sname="{{ team.teamSName }}">
+                                        <i class="far fa-star"></i> Add to Favorites
+                                    </button>
+                                {% endif %}
+                            {% endif %}
                         </div>
                     {% else %}
                         <div class="section-header">
@@ -92,12 +115,19 @@
     .team-card {
         display: flex;
         align-items: center;
+        justify-content: space-between;
         padding: 15px;
         margin-bottom: 15px;
         background-color: white;
         border-radius: 8px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         transition: transform 0.2s;
+    }
+    
+    .team-card-content {
+        display: flex;
+        align-items: center;
+        flex: 1;
         cursor: pointer;
     }
     
@@ -168,6 +198,53 @@
         color: #004085;
     }
     
+    .favorite-btn {
+        padding: 8px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        border: none;
+        font-weight: bold;
+        transition: background-color 0.2s;
+        white-space: nowrap;
+    }
+    
+    .add-favorite {
+        background-color: #e0f7fa;
+        color: #0288d1;
+    }
+    
+    .add-favorite:hover {
+        background-color: #b2ebf2;
+    }
+    
+    .remove-favorite {
+        background-color: #ffebee;
+        color: #f44336;
+    }
+    
+    .remove-favorite:hover {
+        background-color: #ffcdd2;
+    }
+    
+    .notification-area {
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 4px;
+        font-weight: bold;
+    }
+    
+    .notification-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    
+    .notification-error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    
     /* Responsive styles */
     @media (max-width: 1024px) {
         .teams-section {
@@ -198,6 +275,11 @@
         .vertical-scroll-container {
             max-height: 500px;
         }
+        
+        .favorite-btn {
+            padding: 6px 10px;
+            font-size: 0.9rem;
+        }
     }
     
     @media (max-width: 480px) {
@@ -220,6 +302,13 @@
         .team-card {
             padding: 10px;
             margin-bottom: 10px;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .team-card-content {
+            margin-bottom: 10px;
+            width: 100%;
         }
         
         .team-image-placeholder {
@@ -246,6 +335,153 @@
             max-height: 450px;
             padding-right: 5px;
         }
+        
+        .favorite-btn {
+            width: 100%;
+            margin-top: 5px;
+        }
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle Add to Favorites
+        document.querySelectorAll('.add-favorite').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const teamId = this.getAttribute('data-team-id');
+                const teamName = this.getAttribute('data-team-name');
+                const teamSName = this.getAttribute('data-team-sname');
+                
+                addToFavorites(teamId, teamName, teamSName, this);
+            });
+        });
+        
+        // Handle Remove from Favorites
+        document.querySelectorAll('.remove-favorite').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const teamId = this.getAttribute('data-team-id');
+                removeFromFavorites(teamId, this);
+            });
+        });
+        
+        // Function to add a team to favorites
+        function addToFavorites(teamId, teamName, teamSName, buttonElement) {
+            // Create form data
+            const formData = new FormData();
+            formData.append('team_id', teamId);
+            formData.append('team_name', teamName);
+            formData.append('team_sname', teamSName);
+            
+            // Get CSRF token
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            // Make AJAX request
+            fetch('{% url "add_favorite_team" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success notification
+                    showNotification(data.message, 'success');
+                    
+                    // Change button to "Remove from Favorites"
+                    buttonElement.innerHTML = '<i class="fas fa-star"></i> Remove';
+                    buttonElement.classList.remove('add-favorite');
+                    buttonElement.classList.add('remove-favorite');
+                    
+                    // Update event listener
+                    buttonElement.removeEventListener('click', addClickHandler);
+                    buttonElement.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        removeFromFavorites(teamId, buttonElement);
+                    });
+                } else {
+                    // Show error notification
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('Error adding team to favorites', 'error');
+                console.error('Error:', error);
+            });
+        }
+        
+        // Function to remove a team from favorites
+        function removeFromFavorites(teamId, buttonElement) {
+            // Create form data
+            const formData = new FormData();
+            formData.append('team_id', teamId);
+            
+            // Get CSRF token
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            // Make AJAX request
+            fetch('{% url "remove_favorite_team" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success notification
+                    showNotification(data.message, 'success');
+                    
+                    // Change button to "Add to Favorites"
+                    const teamName = buttonElement.getAttribute('data-team-name');
+                    const teamSName = buttonElement.getAttribute('data-team-sname');
+                    
+                    buttonElement.innerHTML = '<i class="far fa-star"></i> Add to Favorites';
+                    buttonElement.classList.remove('remove-favorite');
+                    buttonElement.classList.add('add-favorite');
+                    
+                    // Update event listener
+                    buttonElement.removeEventListener('click', removeClickHandler);
+                    buttonElement.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        addToFavorites(teamId, teamName, teamSName, buttonElement);
+                    });
+                } else {
+                    // Show error notification
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('Error removing team from favorites', 'error');
+                console.error('Error:', error);
+            });
+        }
+        
+        // Function to show notification
+        function showNotification(message, type) {
+            const notificationArea = document.getElementById('notification-area');
+            notificationArea.textContent = message;
+            notificationArea.className = 'notification-area';
+            notificationArea.classList.add('notification-' + type);
+            notificationArea.style.display = 'block';
+            
+            // Auto hide after 3 seconds
+            setTimeout(() => {
+                notificationArea.style.display = 'none';
+            }, 3000);
+        }
+    });
+</script>
+
+{% csrf_token %}
 {% endblock %}
