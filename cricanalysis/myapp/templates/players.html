@@ -3,163 +3,7 @@
 {% block content %}
 <div class="container-wrapper">
     <div class="custom-container">
-        <h1 class="mb-4">Cricket Players</h1>
-
-        <style>
-            .container-wrapper {
-                width: 100%;
-                display: flex;
-                justify-content: center;
-            }
-            
-            .custom-container {
-                width: 90%;
-                max-width: 1400px;
-                margin: 0 auto;
-                padding: 2rem 0;
-            }
-            
-            .search-section {
-                margin-bottom: 2rem;
-                display: flex;
-                justify-content: flex-end;
-            }
-            
-            .search-form {
-                display: flex;
-                max-width: 400px;
-                width: 100%;
-            }
-            
-            .search-input {
-                flex: 1;
-                padding: 10px 15px;
-                border: 1px solid #002147;
-                border-radius: 4px 0 0 4px;
-                font-size: 1rem;
-            }
-            
-            .search-button {
-                padding: 10px 20px;
-                background-color: #002147;
-                color: white;
-                border: none;
-                border-radius: 0 4px 4px 0;
-                cursor: pointer;
-                transition: background-color 0.2s;
-            }
-            
-            .search-button:hover {
-                background-color: #001b3a;
-            }
-            
-            .players-section {
-                border: 1px solid #e0e0e0;
-                border-radius: 12px;
-                padding: 2%;
-                margin: 2% 0;
-                background-color: #f9f9f9;
-                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            }
-            
-            .section-title {
-                color: #002147;
-                font-size: 1.5rem;
-                border-bottom: 2px solid #002147;
-                padding-bottom: 10px;
-                margin-bottom: 20px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-            
-            .vertical-scroll-container {
-                max-height: 70vh;
-                overflow-y: auto;
-                padding-right: 10px;
-            }
-            
-            .vertical-scroll-container::-webkit-scrollbar {
-                width: 8px;
-            }
-            
-            .vertical-scroll-container::-webkit-scrollbar-thumb {
-                background-color: #002147;
-                border-radius: 4px;
-            }
-            
-            .player-card {
-                display: flex;
-                align-items: center;
-                padding: 15px;
-                margin-bottom: 15px;
-                background-color: white;
-                border-radius: 8px;
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-                transition: transform 0.2s;
-                text-decoration: none;
-                color: inherit;
-                cursor: pointer;
-            }
-            
-            .player-card:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                background-color: #f8f9fa;
-            }
-            
-            .player-image {
-                width: 60px;
-                height: 60px;
-                border-radius: 50%;
-                margin-right: 20px;
-                background-color: #f0f0f0;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: #002147;
-                font-weight: bold;
-                font-size: 1.5rem;
-                /* Improved image display */
-                background-repeat: no-repeat;
-                background-position: center 25%;
-                background-size: contain;
-                overflow: visible;
-            }
-            
-            .player-info {
-                flex: 1;
-            }
-            
-            .player-name {
-                font-size: 1.2rem;
-                font-weight: bold;
-                margin-bottom: 5px;
-            }
-            
-            .player-team {
-                color: #666;
-                margin-bottom: 3px;
-            }
-            
-            .player-dob {
-                color: #888;
-                font-size: 0.9rem;
-            }
-            
-            .search-results {
-                margin-top: 1rem;
-                color: #666;
-                font-style: italic;
-            }
-            
-            .no-results {
-                text-align: center;
-                padding: 2rem;
-                color: #666;
-                font-style: italic;
-            }
-        </style>
+        <h1 class="page-title">Cricket Players</h1>
 
         <!-- Search Section -->
         <div class="search-section">
@@ -219,4 +63,294 @@
         </div>
     </div>
 </div>
+
+<style>
+    .page-title {
+        margin-bottom: 1.5rem;
+        color: #002147;
+    }
+    
+    .container-wrapper {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+    
+    .custom-container {
+        width: 90%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 0;
+    }
+    
+    .search-section {
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: flex-end;
+    }
+    
+    .search-form {
+        display: flex;
+        max-width: 400px;
+        width: 100%;
+    }
+    
+    .search-input {
+        flex: 1;
+        padding: 10px 15px;
+        border: 1px solid #002147;
+        border-radius: 4px 0 0 4px;
+        font-size: 1rem;
+    }
+    
+    .search-button {
+        padding: 10px 20px;
+        background-color: #002147;
+        color: white;
+        border: none;
+        border-radius: 0 4px 4px 0;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    
+    .search-button:hover {
+        background-color: #001b3a;
+    }
+    
+    .players-section {
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 2rem;
+        margin: 2rem 0;
+        background-color: #f9f9f9;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+    
+    .section-title {
+        color: #002147;
+        font-size: 1.5rem;
+        border-bottom: 2px solid #002147;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .section-title h2 {
+        margin: 0;
+        font-size: 1.5rem;
+    }
+    
+    .vertical-scroll-container {
+        max-height: 70vh;
+        overflow-y: auto;
+        padding-right: 10px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+    }
+    
+    .vertical-scroll-container::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    .vertical-scroll-container::-webkit-scrollbar-thumb {
+        background-color: #002147;
+        border-radius: 4px;
+    }
+    
+    .player-card {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        margin-bottom: 15px;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+        text-decoration: none;
+        color: inherit;
+        cursor: pointer;
+    }
+    
+    .player-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        background-color: #f8f9fa;
+    }
+    
+    .player-image {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        margin-right: 20px;
+        background-color: #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #002147;
+        font-weight: bold;
+        font-size: 1.5rem;
+        background-repeat: no-repeat;
+        background-position: center 25%;
+        background-size: cover;
+        flex-shrink: 0;
+    }
+    
+    .player-info {
+        flex: 1;
+        min-width: 0; /* Ensures text truncation works properly */
+    }
+    
+    .player-name {
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .player-team {
+        color: #666;
+        margin-bottom: 3px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .player-dob {
+        color: #888;
+        font-size: 0.9rem;
+    }
+    
+    .search-results {
+        color: #666;
+        font-style: italic;
+    }
+    
+    .no-results {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+        font-style: italic;
+    }
+    
+    /* Responsive styles */
+    @media (max-width: 1024px) {
+        .players-section {
+            padding: 1.5rem;
+        }
+        
+        .vertical-scroll-container {
+            max-height: 65vh;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .search-section {
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .search-form {
+            width: 100%;
+            max-width: none;
+        }
+        
+        .players-section {
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+        }
+        
+        .section-title {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+        
+        .section-title h2 {
+            font-size: 1.3rem;
+        }
+        
+        .search-results {
+            margin-bottom: 0.5rem;
+        }
+        
+        .player-image {
+            width: 50px;
+            height: 50px;
+            margin-right: 15px;
+        }
+        
+        .player-name {
+            font-size: 1.1rem;
+        }
+        
+        .vertical-scroll-container {
+            max-height: 60vh;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .page-title {
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 1.25rem;
+        }
+        
+        .players-section {
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+        }
+        
+        .section-title h2 {
+            font-size: 1.2rem;
+        }
+        
+        .player-card {
+            padding: 12px 10px;
+            margin-bottom: 10px;
+        }
+        
+        .player-image {
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+            margin-right: 10px;
+        }
+        
+        .player-name {
+            font-size: 1rem;
+        }
+        
+        .player-team,
+        .player-dob {
+            font-size: 0.85rem;
+        }
+        
+        .search-input {
+            padding: 8px 12px;
+            font-size: 0.9rem;
+        }
+        
+        .search-button {
+            padding: 8px 15px;
+            font-size: 0.9rem;
+        }
+        
+        .vertical-scroll-container {
+            max-height: 55vh;
+            padding-right: 5px;
+        }
+        
+        .no-results {
+            padding: 1.5rem;
+            font-size: 0.9rem;
+        }
+    }
+</style>
 {% endblock %}

@@ -9,13 +9,13 @@
             <div class="player-header">
                 <div class="player-header-info">
                     {% if player_details.faceImageId %}
-                        <div class="player-profile-image" style="background-image: url('{% url 'player_image' %}?id={{ player_details.faceImageId }}'); background-position: center 25%; background-size: 100%;"></div>
+                        <div class="player-profile-image" style="background-image: url('{% url 'player_image' %}?id={{ player_details.faceImageId }}')"></div>
                     {% else %}
                         <div class="player-profile-image">
                             {{ player_details.name|slice:":1"|default:"?" }}
                         </div>
                     {% endif %}
-                    <div>
+                    <div class="player-name-info">
                         <h1>{{ player_details.name|default:"Player Details" }}</h1>
                         {% if player_details.teamName %}
                             <div class="team-name">{{ player_details.teamName }}</div>
@@ -170,24 +170,26 @@
 
                     {% if stats.headers %}
                         <div class="stats-table-container">
-                            <table class="stats-table">
-                                <thead>
-                                    <tr>
-                                        {% for header in stats.headers %}
-                                            <th>{{ header }}</th>
-                                        {% endfor %}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for row in stats.values %}
+                            <div class="table-responsive">
+                                <table class="stats-table">
+                                    <thead>
                                         <tr>
-                                            {% for value in row.values %}
-                                                <td>{{ value }}</td>
+                                            {% for header in stats.headers %}
+                                                <th>{{ header }}</th>
                                             {% endfor %}
                                         </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        {% for row in stats.values %}
+                                            <tr>
+                                                {% for value in row.values %}
+                                                    <td>{{ value }}</td>
+                                                {% endfor %}
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     {% else %}
                         <div class="no-stats">
@@ -221,18 +223,26 @@
         margin-bottom: 2rem;
         padding-bottom: 1rem;
         border-bottom: 2px solid #002147;
+        flex-wrap: wrap;
+        gap: 1rem;
     }
 
     .player-header-info {
         display: flex;
         align-items: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+
+    .player-name-info {
+        display: flex;
+        flex-direction: column;
     }
 
     .player-profile-image {
         width: 120px;
         height: 120px;
         border-radius: 50%;
-        margin-right: 2rem;
         background-color: #f0f0f0;
         display: flex;
         align-items: center;
@@ -242,10 +252,9 @@
         color: #002147;
         background-repeat: no-repeat;
         border: 1px solid #eee;
-        background-position: center 25%; /* Adjusted to position faces better */
-        background-size: contain; /* Change from 100% to contain to avoid cropping */
-        object-fit: cover;
-        overflow: visible; /* Change from hidden to visible to prevent cropping */
+        background-position: center 25%;
+        background-size: cover;
+        flex-shrink: 0;
     }
 
     .back-button .btn {
@@ -276,6 +285,10 @@
         display: flex;
         margin-bottom: 2rem;
         border-bottom: 1px solid #ddd;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        scrollbar-width: thin;
+        -webkit-overflow-scrolling: touch;
     }
 
     .tab-link {
@@ -285,6 +298,7 @@
         font-weight: bold;
         border-bottom: 3px solid transparent;
         transition: all 0.2s;
+        white-space: nowrap;
     }
 
     .tab-link:hover {
@@ -311,12 +325,19 @@
     }
 
     .stats-table-container {
+        margin: 0 -15px;
+    }
+
+    .table-responsive {
         overflow-x: auto;
+        padding: 0 15px;
+        -webkit-overflow-scrolling: touch;
     }
 
     .stats-table {
         width: 100%;
         border-collapse: collapse;
+        min-width: 600px;
     }
 
     .stats-table th,
@@ -330,6 +351,8 @@
         background-color: #002147;
         color: white;
         font-weight: bold;
+        position: sticky;
+        top: 0;
     }
 
     .stats-table tr:nth-child(even) {
@@ -403,6 +426,89 @@
         padding: 1rem;
         background-color: #f9f9f9;
         border-radius: 4px;
+    }
+
+    /* Responsive styles */
+    @media (max-width: 1024px) {
+        .stats-container {
+            padding: 1.5rem;
+        }
+        
+        .player-info-grid {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .player-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .back-button {
+            margin-top: 1rem;
+            align-self: flex-start;
+        }
+        
+        .stats-container {
+            padding: 1.25rem;
+        }
+        
+        .player-info-grid {
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+        }
+        
+        .info-section {
+            padding: 1.25rem;
+        }
+        
+        .tab-link {
+            padding: 0.75rem 1.25rem;
+            font-size: 0.95rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .player-header-info {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .player-profile-image {
+            width: 100px;
+            height: 100px;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .player-name-info h1 {
+            font-size: 1.5rem;
+        }
+        
+        .stats-container {
+            padding: 1rem;
+        }
+        
+        .info-section {
+            padding: 1rem;
+        }
+        
+        .stats-header h2 {
+            font-size: 1.4rem;
+        }
+        
+        .tab-link {
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .stats-table th,
+        .stats-table td {
+            padding: 8px 10px;
+            font-size: 0.9rem;
+        }
     }
 </style>
 {% endblock %}

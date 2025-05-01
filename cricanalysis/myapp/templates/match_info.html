@@ -64,100 +64,104 @@
                         <!-- Batting Scorecard -->
                         <div class="scorecard-table-container">
                             <h3>Batting</h3>
-                            <table class="scorecard-table batting-table">
-                                <thead>
-                                    <tr>
-                                        <th>Batter</th>
-                                        <th></th>
-                                        <th>R</th>
-                                        <th>B</th>
-                                        <th>4s</th>
-                                        <th>6s</th>
-                                        <th>SR</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for key, batter in innings.batTeamDetails.batsmenData.items %}
-                                    <tr>
-                                        <td class="player-name">
-                                            {{ batter.batName }}
-                                            {% if batter.isCaptain %}<span class="captain-marker">(c)</span>{% endif %}
-                                            {% if batter.isKeeper %}<span class="keeper-marker">(wk)</span>{% endif %}
-                                        </td>
-                                        <td class="dismissal">{{ batter.outDesc }}</td>
-                                        <td class="runs">{{ batter.runs }}</td>
-                                        <td class="balls">{{ batter.balls }}</td>
-                                        <td class="fours">{{ batter.fours }}</td>
-                                        <td class="sixes">{{ batter.sixes }}</td>
-                                        <td class="strike-rate">{{ batter.strikeRate }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                                {% if innings.extrasData %}
-                                <tfoot>
-                                    <tr class="extras-row">
-                                        <td colspan="2">Extras</td>
-                                        <td colspan="5">
-                                            {{ innings.extrasData.total }} (b {{ innings.extrasData.byes }}, 
-                                            lb {{ innings.extrasData.legByes }}, w {{ innings.extrasData.wides }}, 
-                                            nb {{ innings.extrasData.noBalls }}, p {{ innings.extrasData.penalty }})
-                                        </td>
-                                    </tr>
-                                    <tr class="total-row">
-                                        <td colspan="2">Total</td>
-                                        <td colspan="5">
-                                            {% if innings.batTeamDetails.batTeamName == match_details.team1.teamName %}
-                                                {{ match_details.team1_score.runs|default:"0" }}
-                                                ({{ match_details.team1_score.wickets|default:"0" }} wkts, 
-                                                {{ match_details.team1_score.overs|default:"0" }} Ov)
-                                            {% elif innings.batTeamDetails.batTeamName == match_details.team2.teamName %}
-                                                {{ match_details.team2_score.runs|default:"0" }}
-                                                ({{ match_details.team2_score.wickets|default:"0" }} wkts, 
-                                                {{ match_details.team2_score.overs|default:"0" }} Ov)
-                                            {% else %}
-                                                {{ innings.score|default:"0" }}
-                                                ({{ innings.wickets|default:"0" }} wkts, {{ innings.overs|default:"0" }} Ov)
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                </tfoot>
-                                {% endif %}
-                            </table>
+                            <div class="table-responsive">
+                                <table class="scorecard-table batting-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Batter</th>
+                                            <th></th>
+                                            <th>R</th>
+                                            <th>B</th>
+                                            <th>4s</th>
+                                            <th>6s</th>
+                                            <th>SR</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for key, batter in innings.batTeamDetails.batsmenData.items %}
+                                        <tr>
+                                            <td class="player-name">
+                                                {{ batter.batName }}
+                                                {% if batter.isCaptain %}<span class="captain-marker">(c)</span>{% endif %}
+                                                {% if batter.isKeeper %}<span class="keeper-marker">(wk)</span>{% endif %}
+                                            </td>
+                                            <td class="dismissal">{{ batter.outDesc }}</td>
+                                            <td class="runs">{{ batter.runs }}</td>
+                                            <td class="balls">{{ batter.balls }}</td>
+                                            <td class="fours">{{ batter.fours }}</td>
+                                            <td class="sixes">{{ batter.sixes }}</td>
+                                            <td class="strike-rate">{{ batter.strikeRate }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                    {% if innings.extrasData %}
+                                    <tfoot>
+                                        <tr class="extras-row">
+                                            <td colspan="2">Extras</td>
+                                            <td colspan="5">
+                                                {{ innings.extrasData.total }} (b {{ innings.extrasData.byes }}, 
+                                                lb {{ innings.extrasData.legByes }}, w {{ innings.extrasData.wides }}, 
+                                                nb {{ innings.extrasData.noBalls }}, p {{ innings.extrasData.penalty }})
+                                            </td>
+                                        </tr>
+                                        <tr class="total-row">
+                                            <td colspan="2">Total</td>
+                                            <td colspan="5">
+                                                {% if innings.batTeamDetails.batTeamName == match_details.team1.teamName %}
+                                                    {{ match_details.team1_score.runs|default:"0" }}
+                                                    ({{ match_details.team1_score.wickets|default:"0" }} wkts, 
+                                                    {{ match_details.team1_score.overs|default:"0" }} Ov)
+                                                {% elif innings.batTeamDetails.batTeamName == match_details.team2.teamName %}
+                                                    {{ match_details.team2_score.runs|default:"0" }}
+                                                    ({{ match_details.team2_score.wickets|default:"0" }} wkts, 
+                                                    {{ match_details.team2_score.overs|default:"0" }} Ov)
+                                                {% else %}
+                                                    {{ innings.score|default:"0" }}
+                                                    ({{ innings.wickets|default:"0" }} wkts, {{ innings.overs|default:"0" }} Ov)
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                    {% endif %}
+                                </table>
+                            </div>
                         </div>
                         
                         <!-- Bowling Scorecard -->
                         {% if innings.bowlTeamDetails.bowlersData %}
                         <div class="scorecard-table-container">
                             <h3>Bowling</h3>
-                            <table class="scorecard-table bowling-table">
-                                <thead>
-                                    <tr>
-                                        <th>Bowler</th>
-                                        <th>O</th>
-                                        <th>M</th>
-                                        <th>R</th>
-                                        <th>W</th>
-                                        <th>Econ</th>
-                                        <th>Dots</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for key, bowler in innings.bowlTeamDetails.bowlersData.items %}
-                                    <tr>
-                                        <td class="player-name">
-                                            {{ bowler.bowlName }}
-                                            {% if bowler.isCaptain %}<span class="captain-marker">(c)</span>{% endif %}
-                                        </td>
-                                        <td class="overs">{{ bowler.overs }}</td>
-                                        <td class="maidens">{{ bowler.maidens }}</td>
-                                        <td class="runs">{{ bowler.runs }}</td>
-                                        <td class="wickets">{{ bowler.wickets }}</td>
-                                        <td class="economy">{{ bowler.economy }}</td>
-                                        <td class="dots">{{ bowler.dots }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                            <div class="table-responsive">
+                                <table class="scorecard-table bowling-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Bowler</th>
+                                            <th>O</th>
+                                            <th>M</th>
+                                            <th>R</th>
+                                            <th>W</th>
+                                            <th>Econ</th>
+                                            <th>Dots</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for key, bowler in innings.bowlTeamDetails.bowlersData.items %}
+                                        <tr>
+                                            <td class="player-name">
+                                                {{ bowler.bowlName }}
+                                                {% if bowler.isCaptain %}<span class="captain-marker">(c)</span>{% endif %}
+                                            </td>
+                                            <td class="overs">{{ bowler.overs }}</td>
+                                            <td class="maidens">{{ bowler.maidens }}</td>
+                                            <td class="runs">{{ bowler.runs }}</td>
+                                            <td class="wickets">{{ bowler.wickets }}</td>
+                                            <td class="economy">{{ bowler.economy }}</td>
+                                            <td class="dots">{{ bowler.dots }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                         {% endif %}
                         
@@ -322,6 +326,7 @@
         padding-bottom: 1rem;
         border-bottom: 2px solid #002147;
         flex-wrap: wrap;
+        gap: 1rem;
     }
     
     .match-venue {
@@ -784,36 +789,6 @@
         text-align: center;
     }
 
-    /* Responsive styles */
-    @media (max-width: 992px) {
-        .content-grid {
-            grid-template-columns: 1fr;
-        }
-        
-        .match-sidebar {
-            margin-top: 2rem;
-        }
-    }
-    
-    @media (max-width: 768px) {
-        .innings-header {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        
-        .innings-total {
-            margin-top: 1rem;
-        }
-        
-        .scorecard-table {
-            font-size: 0.9rem;
-        }
-        
-        .dismissal {
-            max-width: 150px;
-        }
-    }
-
     /* Match finished message style */
     .match-finished-message {
         padding: 2rem;
@@ -834,6 +809,128 @@
     .back-button {
         display: flex;
         align-items: center;
+        flex-wrap: wrap;
+    }
+
+    /* Enhanced responsive styles */
+    @media (max-width: 1200px) {
+        .content-grid {
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+        }
+    }
+    
+    @media (max-width: 992px) {
+        .content-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .match-sidebar {
+            margin-top: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        .custom-container {
+            padding: 1.5rem 0;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .match-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .match-details h1 {
+            font-size: 1.5rem;
+        }
+        
+        .match-summary {
+            width: 100%;
+            margin: 1rem 0;
+            text-align: left;
+        }
+        
+        .back-button {
+            width: 100%;
+            justify-content: space-between;
+        }
+        
+        .innings-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .innings-total {
+            margin-top: 1rem;
+        }
+        
+        .scorecard-table {
+            font-size: 0.9rem;
+        }
+        
+        .dismissal {
+            max-width: 150px;
+        }
+        
+        .match-sidebar {
+            grid-template-columns: 1fr;
+        }
+        
+        .custom-container {
+            padding: 1rem 0;
+        }
+        
+        .scorecard-table th, 
+        .scorecard-table td {
+            padding: 8px 6px;
+        }
+        
+        .table-responsive {
+            margin: 0 -10px;
+            padding: 0 10px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .match-details h1 {
+            font-size: 1.3rem;
+        }
+        
+        .scorecard-table {
+            font-size: 0.8rem;
+        }
+        
+        .innings-card {
+            padding: 1rem;
+        }
+        
+        .dismissal {
+            max-width: 120px;
+        }
+        
+        .scorecard-table th, 
+        .scorecard-table td {
+            padding: 6px 4px;
+        }
+        
+        .sidebar-card {
+            padding: 1rem;
+        }
+        
+        .back-button .btn {
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .refresh-indicator {
+            font-size: 0.8rem;
+            display: block;
+            width: 100%;
+            margin: 0.5rem 0 0 0;
+        }
     }
 </style>
 

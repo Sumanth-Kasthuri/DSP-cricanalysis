@@ -25,12 +25,20 @@ header {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
+    position: relative;
 }
 
 .logo {
     font-size: 1.8rem;
     font-weight: 700;
     color: #002147; /* Dark blue */
+}
+
+.logo h2 {
+    color: #002147;
+    margin: 0;
+    font-size: 1.8rem;
 }
 
 nav#nav {
@@ -41,11 +49,26 @@ nav#nav {
 
 nav#nav a {
     font-weight: 600;
-    transition: color 0.3s;
+    transition: all 0.3s;
+    text-decoration: none;
+    color: #333;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
 }
 
 nav#nav a:hover {
+    background-color: #e0e0e0;
     color: #0057a3; /* Lighter blue accent */
+}
+
+nav#nav a.active {
+    background-color: #002147;
+    color: white;
+}
+
+.auth-buttons {
+    display: flex;
+    align-items: center;
 }
 
 .profile-button, .login-button {
@@ -57,6 +80,167 @@ nav#nav a:hover {
     transition: background-color 0.3s;
 }
 
-.login-button:hover {
+.login-button:hover, .profile-button:hover {
     background-color: #001b3a;
+}
+
+/* Hamburger menu for mobile */
+.hamburger-menu {
+    display: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #002147;
+}
+
+/* Common responsive container styles */
+.container, .custom-container {
+    width: 90%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+/* Tables responsiveness */
+.table-responsive {
+    overflow-x: auto;
+    width: 100%;
+}
+
+/* Global responsive styles */
+@media (max-width: 1024px) {
+    .container, .custom-container {
+        width: 95%;
+    }
+    
+    /* Keep the same header layout as desktop for tablet - no changes needed */
+    header {
+        flex-wrap: nowrap; /* Prevent wrapping for tablet view */
+    }
+    
+    nav#nav {
+        justify-content: center; /* Center the navigation items */
+        flex: 1; /* Take up available space between logo and auth buttons */
+        padding: 0 1rem; /* Add some padding for better spacing */
+    }
+}
+
+@media (max-width: 768px) {
+    header {
+        padding: 1rem;
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        position: relative;
+        min-height: 60px; /* Ensure minimum height for header */
+    }
+    
+    .hamburger-menu {
+        display: block;
+        font-size: 1.5rem;
+        position: absolute;
+        left: 10%;
+        transform: translateX(-50%);
+        z-index: 10;
+    }
+    
+    .logo {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        margin: 0;
+        text-align: center;
+        width: auto; /* Allow logo to take natural width */
+    }
+    
+    .auth-buttons {
+        position: absolute;
+        right: 10%;
+        transform: translateX(50%);
+        z-index: 10;
+        margin: 0;
+    }
+    
+    nav#nav {
+        width: 100%;
+        flex-basis: 100%;
+        margin: 0;
+        order: 1;
+        flex-direction: column;
+        gap: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+        margin-top: 60px; /* Align with header height */
+    }
+    
+    nav#nav.show {
+        max-height: 300px;
+    }
+    
+    nav#nav a {
+        width: 100%;
+        padding: 1rem;
+        border-radius: 0;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .profile-button, .login-button {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+    }
+    
+    .container, .custom-container {
+        width: 100%;
+        padding: 1rem 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    header {
+        padding: 0.75rem 1.5rem; /* Increase horizontal padding */
+    }
+    
+    .logo h2 {
+        font-size: 1.3rem;
+    }
+    
+    .hamburger-menu {
+        font-size: 1.3rem;
+        left: 1.5rem; /* Use absolute units instead of percentage */
+        transform: none; /* Remove transform */
+    }
+    
+    .auth-buttons {
+        right: 1.5rem; /* Use absolute units instead of percentage */
+        transform: none; /* Remove transform */
+    }
+    
+    .profile-button, .login-button {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.85rem;
+    }
+    
+    nav#nav a {
+        font-size: 0.9rem;
+        padding: 0.8rem 1rem;
+    }
+}
+
+/* Helper classes for responsive design */
+.hide-on-mobile {
+    display: block;
+}
+
+.show-on-mobile {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .hide-on-mobile {
+        display: none;
+    }
+    
+    .show-on-mobile {
+        display: block;
+    }
 }

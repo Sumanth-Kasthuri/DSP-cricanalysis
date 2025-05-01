@@ -131,12 +131,19 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #002147;
+    }
+    
+    .team-info h1 {
+        margin-bottom: 0.5rem;
     }
     
     .team-country {
         color: #666;
         font-size: 1.2rem;
-        margin-top: 0.5rem;
     }
     
     .back-button .btn {
@@ -156,6 +163,9 @@
         display: flex;
         border-bottom: 2px solid #002147;
         margin-bottom: 2rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
     }
     
     .tab-link {
@@ -164,6 +174,7 @@
         color: #666;
         font-weight: bold;
         transition: all 0.2s ease;
+        white-space: nowrap;
     }
     
     .tab-link.active {
@@ -183,12 +194,18 @@
     }
     
     /* Schedule Tab Styles */
+    .schedule-container h2 {
+        margin-bottom: 1.5rem;
+        color: #002147;
+    }
+    
     .schedule-card {
         background-color: #f9f9f9;
         border: 1px solid #e0e0e0;
         border-radius: 8px;
         margin-bottom: 2rem;
         overflow: hidden;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     }
     
     .series-header {
@@ -239,14 +256,21 @@
     }
     
     .match-format {
+        display: inline-block;
         background-color: #002147;
         color: white;
         padding: 0.2rem 0.5rem;
         border-radius: 4px;
-        margin-right: 1rem;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
     }
 
     /* Player Tab Styles */
+    .players-container h2 {
+        margin-bottom: 1.5rem;
+        color: #002147;
+    }
+    
     .player-category {
         margin-bottom: 2rem;
     }
@@ -266,12 +290,15 @@
     }
     
     .player-card {
-        background-color: #f9f9f9;
+        background-color: #ffffff;
         border: 1px solid #e0e0e0;
         border-radius: 8px;
         overflow: hidden;
         transition: transform 0.2s, box-shadow 0.2s;
         cursor: pointer;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
     }
     
     .player-card:hover {
@@ -296,6 +323,9 @@
     
     .player-details {
         padding: 1rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
     }
     
     .player-details h3 {
@@ -323,6 +353,134 @@
         color: #666;
         background-color: #f9f9f9;
         border-radius: 8px;
+        margin-top: 1rem;
+    }
+    
+    .alert {
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 5px;
+    }
+    
+    .alert-warning {
+        background-color: #fff3cd;
+        border: 1px solid #ffeeba;
+        color: #856404;
+    }
+    
+    .alert-danger {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+    
+    /* Responsive styles */
+    @media (max-width: 1024px) {
+        .players-grid {
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.25rem;
+        }
+        
+        .player-image {
+            height: 180px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .team-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .team-info h1 {
+            font-size: 1.8rem;
+        }
+        
+        .team-country {
+            font-size: 1.1rem;
+        }
+        
+        .tab-link {
+            padding: 0.75rem 1.5rem;
+        }
+        
+        .players-grid {
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .player-image {
+            height: 160px;
+        }
+        
+        .series-header h3 {
+            font-size: 1.2rem;
+        }
+        
+        .match-item {
+            padding: 0.75rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .team-info h1 {
+            font-size: 1.5rem;
+        }
+        
+        .team-country {
+            font-size: 1rem;
+        }
+        
+        .back-button .btn {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+        }
+        
+        .tab-link {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+        }
+        
+        .players-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .player-details h3 {
+            font-size: 1rem;
+        }
+        
+        .player-styles {
+            font-size: 0.85rem;
+        }
+        
+        .series-header {
+            padding: 0.75rem 1rem;
+        }
+        
+        .series-header h3 {
+            font-size: 1.1rem;
+        }
+        
+        .match-item {
+            padding: 0.75rem 0.6rem;
+            font-size: 0.9rem;
+        }
+        
+        .match-teams {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .versus {
+            margin: 0.25rem 0;
+            font-size: 0.8rem;
+        }
+        
+        .schedule-container h2,
+        .players-container h2 {
+            font-size: 1.4rem;
+        }
     }
 </style>
 {% endblock %}

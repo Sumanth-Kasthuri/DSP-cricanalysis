@@ -3,127 +3,7 @@
 {% block content %}
 <div class="container-wrapper">
     <div class="custom-container">
-        <h1 class="mb-5">Cricket Matches</h1>
-
-        <style>
-            .container-wrapper {
-                width: 100%;
-                display: flex;
-                justify-content: center;
-            }
-            
-            .custom-container {
-                width: 90%;  /* Takes up 90% of screen width, leaving 5% on each side */
-                max-width: 1400px;
-                margin: 0 auto;
-                padding: 2rem 0;
-            }
-            
-            .horizontal-scroll {
-                display: flex;
-                overflow-x: auto;
-                gap: 1rem;
-                padding: 1rem 0;
-            }
-
-            .horizontal-scroll::-webkit-scrollbar {
-                height: 8px;
-            }
-
-            .horizontal-scroll::-webkit-scrollbar-thumb {
-                background-color: #002147;
-                border-radius: 4px;
-            }
-
-            .card {
-                min-width: 300px;
-                flex: 0 0 auto;
-                border: 1px solid #ccc;
-                border-radius: 8px;
-                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-                transition: transform 0.2s;
-                cursor: pointer;
-            }
-
-            .card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            }
-
-            .card-header {
-                font-size: 1.2rem;
-                font-weight: bold;
-                padding: 0.5rem 1rem;
-                border-bottom: 1px solid #ccc;
-            }
-
-            .card-body {
-                padding: 1rem;
-            }
-
-            .card-header.bg-danger {
-                background-color: #dc3545;
-                color: white;
-            }
-
-            .card-header.bg-primary {
-                background-color: #007bff;
-                color: white;
-            }
-
-            .card-header.bg-secondary {
-                background-color: #6c757d;
-                color: white;
-            }
-
-            /* Format filter styles */
-            .format-filter {
-                margin-bottom: 20px;
-                display: flex;
-                align-items: center;
-            }
-
-            .format-filter label {
-                margin-right: 10px;
-                font-weight: bold;
-            }
-
-            .format-filter select {
-                padding: 8px 12px;
-                border: 1px solid #002147;
-                border-radius: 4px;
-                background-color: white;
-                min-width: 150px;
-            }
-
-            /* Added styles for no-matches alerts */
-            .no-matches {
-                width: 100%;
-                text-align: center;
-                padding: 20px;
-            }
-            
-            .horizontal-scroll-container {
-                position: relative;
-                min-height: 100px; /* Ensure container has height even when empty */
-            }
-
-            .match-section {
-                border: 1px solid #e0e0e0;
-                border-radius: 12px;
-                padding: 2%;
-                margin: 2% 0;
-                background-color: #f9f9f9;
-                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            }
-            
-            .match-section h2 {
-                color: #002147;
-                border-bottom: 2px solid #002147;
-                padding-bottom: 10px;
-                margin-bottom: 20px;
-            }
-        </style>
+        <h1 class="page-title">Cricket Matches</h1>
 
         <!-- Format Filter Dropdown -->
         <div class="format-filter">
@@ -137,14 +17,14 @@
             <span id="next-refresh" class="refresh-indicator"></span>
         </div>
 
-        <div class="match-section mb-5">
-            <h2 class="mb-4">Live Matches</h2>
+        <div class="match-section">
+            <h2>Live Matches</h2>
             <div class="horizontal-scroll-container">
                 <div class="horizontal-scroll">
                     {% for match in live_matches %}
                         <div class="card" data-format="{{ match.matchFormat }}" onclick="location.href='{% url 'match_info' %}?id={{ match.matchId }}'">
                             <div class="card-header bg-danger">
-                                <h3 class="mb-0">
+                                <h3>
                                     <a href="{% url 'team_info' %}?team_name={{ match.team1.teamName }}" onclick="event.stopPropagation();">{{ match.team1.teamName }}</a> 
                                     vs 
                                     <a href="{% url 'team_info' %}?team_name={{ match.team2.teamName }}" onclick="event.stopPropagation();">{{ match.team2.teamName }}</a>
@@ -171,16 +51,14 @@
             </div>
         </div>
 
-        <hr class="my-5">
-
-        <div class="match-section mb-5">
-            <h2 class="mb-4">Upcoming Matches</h2>
+        <div class="match-section">
+            <h2>Upcoming Matches</h2>
             <div class="horizontal-scroll-container">
                 <div class="horizontal-scroll">
                     {% for match in upcoming_matches %}
                         <div class="card" data-format="{{ match.matchFormat }}" onclick="location.href='{% url 'match_info' %}?id={{ match.matchId }}'">
                             <div class="card-header bg-primary">
-                                <h3 class="mb-0">
+                                <h3>
                                     <a href="{% url 'team_info' %}?team_name={{ match.team1.teamName }}" onclick="event.stopPropagation();">{{ match.team1.teamName }}</a> 
                                     vs 
                                     <a href="{% url 'team_info' %}?team_name={{ match.team2.teamName }}" onclick="event.stopPropagation();">{{ match.team2.teamName }}</a>
@@ -201,16 +79,14 @@
             </div>
         </div>
 
-        <hr class="my-5">
-
-        <div class="match-section mb-5">
-            <h2 class="mb-4">Recent Matches</h2>
+        <div class="match-section">
+            <h2>Recent Matches</h2>
             <div class="horizontal-scroll-container">
                 <div class="horizontal-scroll">
                     {% for match in recent_matches %}
                         <div class="card" data-format="{{ match.matchFormat }}" onclick="location.href='{% url 'match_info' %}?id={{ match.matchId }}'">
                             <div class="card-header bg-secondary">
-                                <h3 class="mb-0">
+                                <h3>
                                     <a href="{% url 'team_info' %}?team_name={{ match.team1.teamName }}" onclick="event.stopPropagation();">{{ match.team1.teamName }}</a> 
                                     vs 
                                     <a href="{% url 'team_info' %}?team_name={{ match.team2.teamName }}" onclick="event.stopPropagation();">{{ match.team2.teamName }}</a>
@@ -235,6 +111,229 @@
                 <div class="alert alert-info no-matches" id="recent-no-matches" {% if recent_matches %}style="display: none;"{% endif %}>No recent matches.</div>
             </div>
         </div>
+
+        <style>
+            .page-title {
+                margin-bottom: 2rem;
+                color: #002147;
+            }
+            
+            .container-wrapper {
+                width: 100%;
+                display: flex;
+                justify-content: center;
+            }
+            
+            .custom-container {
+                width: 90%;
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 2rem 0;
+            }
+            
+            .match-section {
+                border: 1px solid #e0e0e0;
+                border-radius: 12px;
+                padding: 2rem;
+                margin: 2rem 0;
+                background-color: #f9f9f9;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            }
+            
+            .match-section h2 {
+                color: #002147;
+                border-bottom: 2px solid #002147;
+                padding-bottom: 10px;
+                margin-bottom: 20px;
+            }
+            
+            .horizontal-scroll-container {
+                position: relative;
+                min-height: 100px;
+            }
+            
+            .horizontal-scroll {
+                display: flex;
+                overflow-x: auto;
+                gap: 1.5rem;
+                padding: 1rem 0;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: thin;
+                scroll-behavior: smooth;
+            }
+
+            .horizontal-scroll::-webkit-scrollbar {
+                height: 8px;
+            }
+
+            .horizontal-scroll::-webkit-scrollbar-thumb {
+                background-color: #002147;
+                border-radius: 4px;
+            }
+
+            .card {
+                min-width: 300px;
+                flex: 0 0 auto;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                transition: transform 0.2s;
+                cursor: pointer;
+                background-color: white;
+            }
+
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            }
+
+            .card-header {
+                padding: 0.75rem 1rem;
+                border-bottom: 1px solid #ccc;
+                border-radius: 8px 8px 0 0;
+            }
+            
+            .card-header h3 {
+                font-size: 1.1rem;
+                font-weight: bold;
+                margin: 0;
+                line-height: 1.4;
+            }
+
+            .card-body {
+                padding: 1rem;
+            }
+            
+            .card-body p {
+                margin-bottom: 0.5rem;
+            }
+
+            .card-header.bg-danger {
+                background-color: #dc3545;
+                color: white;
+            }
+
+            .card-header.bg-primary {
+                background-color: #007bff;
+                color: white;
+            }
+
+            .card-header.bg-secondary {
+                background-color: #6c757d;
+                color: white;
+            }
+
+            .card-header a {
+                color: inherit;
+                text-decoration: underline;
+            }
+
+            /* Format filter styles */
+            .format-filter {
+                margin-bottom: 1.5rem;
+                display: flex;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+
+            .format-filter label {
+                font-weight: bold;
+                color: #333;
+            }
+
+            .format-filter select {
+                padding: 0.5rem 1rem;
+                border: 1px solid #002147;
+                border-radius: 4px;
+                background-color: white;
+                min-width: 150px;
+                font-size: 1rem;
+            }
+
+            /* No-matches alerts */
+            .no-matches {
+                width: 100%;
+                text-align: center;
+                padding: 1.5rem;
+                background-color: #f8f9fa;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                color: #666;
+            }
+            
+            .refresh-indicator {
+                margin-left: 1rem;
+                font-size: 0.9rem;
+                color: #666;
+                font-style: italic;
+            }
+            
+            /* Responsive adjustments */
+            @media (max-width: 1024px) {
+                .card {
+                    min-width: 280px;
+                }
+                
+                .match-section {
+                    padding: 1.5rem;
+                }
+            }
+            
+            @media (max-width: 768px) {
+                .card {
+                    min-width: 250px;
+                }
+                
+                .match-section {
+                    padding: 1.25rem;
+                    margin: 1.5rem 0;
+                }
+                
+                .format-filter {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 0.5rem;
+                }
+                
+                .refresh-indicator {
+                    margin-left: 0;
+                }
+                
+                .card-header h3 {
+                    font-size: 1rem;
+                }
+            }
+            
+            @media (max-width: 480px) {
+                .card {
+                    min-width: 220px;
+                }
+                
+                .match-section {
+                    padding: 1rem;
+                    margin: 1rem 0;
+                }
+                
+                .card-body {
+                    padding: 0.75rem;
+                    font-size: 0.9rem;
+                }
+                
+                .card-header {
+                    padding: 0.6rem 0.75rem;
+                }
+                
+                .page-title {
+                    font-size: 1.5rem;
+                    margin-bottom: 1.5rem;
+                }
+                
+                .horizontal-scroll {
+                    gap: 1rem;
+                }
+            }
+        </style>
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {
