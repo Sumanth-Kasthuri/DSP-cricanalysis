@@ -229,7 +229,7 @@
                     
                     <!-- Prediction Section -->
                     <div class="sidebar-card prediction-card">
-                        <h3>Match Prediction</h3>
+                        <h3>Match Prediction <span id="prediction-refresh" class="refresh-indicator"></span></h3>
                         {% if is_finished %}
                             <div class="match-finished-message">
                                 This match is finished, hence there is no prediction available
@@ -939,11 +939,14 @@
         // Auto-refresh functionality
         let timeLeft = 300; // 5 minutes = 300 seconds
         const refreshIndicator = document.getElementById('next-refresh');
+        const predictionRefreshIndicator = document.getElementById('prediction-refresh');
         
         function updateRefreshTimer() {
             const minutes = Math.floor(timeLeft / 60);
             const seconds = timeLeft % 60;
+            // Update both timers with the same countdown
             refreshIndicator.textContent = `Auto-updating in: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            predictionRefreshIndicator.textContent = `Updates in: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
             
             if (timeLeft <= 0) {
                 // Reload the page with the match ID and a cache-busting parameter to get fresh data
