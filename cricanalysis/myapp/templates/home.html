@@ -1,16 +1,247 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
     <div class="home-container">
-        {% if request.user.is_authenticated %}
-            <h1>Welcome , {{ request.user.username}} </h1>
-            <p>Explore the world of cricket analytics and insights.</p>
-            <p>Join us to analyze matches, players, and teams like never before!</p>
-        {% else %}
-            <h1>Welcome to CricAnalysis</h1>
-            <p>Explore the world of cricket analytics and insights.</p>
-            <p>Join us to analyze matches, players, and teams like never before!</p>
-            <p>Get started by signing up or logging in.</p>
-        {% endif %}
+        <div class="home-content">
+            <div class="welcome-section">
+                {% if request.user.is_authenticated %}
+                    <h1>Welcome, {{ request.user.username }}</h1>
+                {% else %}
+                    <h1>Welcome to CricAnalysis</h1>
+                {% endif %}
+                <p class="tagline">Explore the world of cricket analytics and insights.</p>
+                
+                <div class="features-section">
+                    <div class="feature">
+                        <h2><i class="fas fa-cricket"></i> Match Analysis</h2>
+                        <p>Track live scores, view upcoming fixtures, and analyze recent match results. Our advanced prediction system helps you understand game probabilities based on team statistics and historical data.</p>
+                    </div>
+                    
+                    <div class="feature">
+                        <h2><i class="fas fa-users"></i> Team Insights</h2>
+                        <p>Explore detailed information about all international cricket teams. View team schedules, player rosters, and performance metrics. Add your favorite teams to receive personalised notifications about their matches.</p>
+                    </div>
+                    
+                    <div class="feature">
+                        <h2><i class="fas fa-user-alt"></i> Player Statistics</h2>
+                        <p>Discover comprehensive statistics for cricket players worldwide. Browse batting averages, bowling figures, and career milestones. Our player profiles provide in-depth analysis of performance across all cricket formats.</p>
+                    </div>
+                </div>
+                
+                {% if not request.user.is_authenticated %}
+                    <div class="cta-section">
+                        <p>Get started by signing up or logging in to access all features.</p>
+                        <div class="cta-buttons">
+                            <a href="{% url 'signup' %}" class="cta-button signup">Sign Up</a>
+                            <a href="{% url 'login' %}" class="cta-button login">Log In</a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="home-image">
+                <img src="{% static 'images/main_page_image.webp' %}" alt="Cricket analysis visualization">
+            </div>
+        </div>
     </div>
-{% endblock%}
+
+    <style>
+        /* Home page specific styles */
+        .home-container {
+            width: 100%;
+            padding: 2rem 4rem;
+            min-height: calc(100vh - 60px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .home-content {
+            display: flex;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            gap: 3rem;
+            align-items: center;
+        }
+        
+        .welcome-section {
+            flex: 1;
+            padding-right: 1rem;
+        }
+        
+        .home-image {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .home-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .home-container h1 {
+            font-size: 2.5rem;
+            color: #002147;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            color: #555;
+            margin-bottom: 2rem;
+        }
+        
+        .features-section {
+            margin: 2rem 0;
+        }
+        
+        .feature {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .feature:last-child {
+            border-bottom: none;
+        }
+        
+        .feature h2 {
+            font-size: 1.4rem;
+            color: #002147;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .feature p {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .cta-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eaeaea;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .cta-button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .cta-button.signup {
+            background-color: #002147;
+            color: white;
+        }
+        
+        .cta-button.login {
+            background-color: white;
+            color: #002147;
+            border: 2px solid #002147;
+        }
+        
+        .cta-button.signup:hover {
+            background-color: #001b3a;
+        }
+        
+        .cta-button.login:hover {
+            background-color: #f0f0f0;
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 1024px) {
+            .home-container {
+                padding: 2rem;
+            }
+            
+            .home-content {
+                gap: 2rem;
+            }
+            
+            .home-container h1 {
+                font-size: 2.2rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .home-content {
+                flex-direction: column-reverse;
+                gap: 2rem;
+            }
+            
+            .welcome-section, .home-image {
+                flex: none;
+                width: 100%;
+            }
+            
+            .home-container {
+                padding: 1.5rem;
+                min-height: auto;
+            }
+            
+            .home-container h1 {
+                font-size: 2rem;
+                text-align: center;
+            }
+            
+            .tagline {
+                text-align: center;
+                margin-bottom: 1.5rem;
+            }
+            
+            .home-image img {
+                max-height: 300px;
+                width: auto;
+                margin: 0 auto;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .home-container {
+                padding: 1rem;
+            }
+            
+            .home-container h1 {
+                font-size: 1.8rem;
+            }
+            
+            .feature h2 {
+                font-size: 1.2rem;
+            }
+            
+            .feature p {
+                font-size: 0.95rem;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .cta-button {
+                width: 100%;
+            }
+            
+            .home-image img {
+                max-height: 200px;
+            }
+        }
+    </style>
+{% endblock %}
