@@ -1,6 +1,3 @@
-"""
-Weather API service for fetching weather information for cricket match venues
-"""
 import requests
 
 WEATHER_API_KEY = "111f566059e30834783cf82e971b6d34"
@@ -20,7 +17,7 @@ def extract_city_from_venue(venue_str):
     
     parts = venue_str.split(',')
     if len(parts) >= 2:
-        # Take the last part which should be the city name and strip whitespace
+        # city is the last part after the last comma
         city = parts[-1].strip()
         return city
     
@@ -43,7 +40,7 @@ def get_weather_for_city(city_name):
     params = {
         'q': city_name,
         'appid': WEATHER_API_KEY,
-        'units': 'metric'  # Use metric units (Celsius)
+        'units': 'metric'  
     }
     
     try:

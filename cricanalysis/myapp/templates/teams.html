@@ -245,7 +245,6 @@
         border: 1px solid #f5c6cb;
     }
     
-    /* Responsive styles */
     @media (max-width: 1024px) {
         .teams-section {
             padding: 1.5rem;
@@ -347,7 +346,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Handle Add to Favorites
         document.querySelectorAll('.add-favorite').forEach(button => {
-            button.addEventListener('click', function(e) {
+            const clickHandler = function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 
@@ -356,18 +355,28 @@
                 const teamSName = this.getAttribute('data-team-sname');
                 
                 addToFavorites(teamId, teamName, teamSName, this);
-            });
+            };
+            
+            button.addEventListener('click', clickHandler);
+            
+            // Store reference to the handler for later removal
+            button._clickHandler = clickHandler;
         });
         
         // Handle Remove from Favorites
         document.querySelectorAll('.remove-favorite').forEach(button => {
-            button.addEventListener('click', function(e) {
+            const clickHandler = function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 
                 const teamId = this.getAttribute('data-team-id');
                 removeFromFavorites(teamId, this);
-            });
+            };
+            
+            button.addEventListener('click', clickHandler);
+            
+            // Store reference to the handler for later removal
+            button._clickHandler = clickHandler;
         });
         
         // Function to add a team to favorites
@@ -400,13 +409,24 @@
                     buttonElement.classList.remove('add-favorite');
                     buttonElement.classList.add('remove-favorite');
                     
-                    // Update event listener
-                    buttonElement.removeEventListener('click', addClickHandler);
-                    buttonElement.addEventListener('click', function(e) {
+                    // Store old click handler to remove it
+                    const oldClickHandler = buttonElement._clickHandler;
+                    
+                    // Create new click handler
+                    const newClickHandler = function(e) {
                         e.preventDefault();
                         e.stopPropagation();
                         removeFromFavorites(teamId, buttonElement);
-                    });
+                    };
+                    
+                    // Remove old handler if exists and add new one
+                    if (oldClickHandler) {
+                        buttonElement.removeEventListener('click', oldClickHandler);
+                    }
+                    buttonElement.addEventListener('click', newClickHandler);
+                    
+                    // Store reference to current handler
+                    buttonElement._clickHandler = newClickHandler;
                 } else {
                     // Show error notification
                     showNotification(data.message, 'error');
@@ -449,13 +469,24 @@
                     buttonElement.classList.remove('remove-favorite');
                     buttonElement.classList.add('add-favorite');
                     
-                    // Update event listener
-                    buttonElement.removeEventListener('click', removeClickHandler);
-                    buttonElement.addEventListener('click', function(e) {
+                    // Store old click handler to remove it
+                    const oldClickHandler = buttonElement._clickHandler;
+                    
+                    // Create new click handler
+                    const newClickHandler = function(e) {
                         e.preventDefault();
                         e.stopPropagation();
                         addToFavorites(teamId, teamName, teamSName, buttonElement);
-                    });
+                    };
+                    
+                    // Remove old handler if exists and add new one
+                    if (oldClickHandler) {
+                        buttonElement.removeEventListener('click', oldClickHandler);
+                    }
+                    buttonElement.addEventListener('click', newClickHandler);
+                    
+                    // Store reference to current handler
+                    buttonElement._clickHandler = newClickHandler;
                 } else {
                     // Show error notification
                     showNotification(data.message, 'error');
@@ -471,8 +502,17 @@
         function showNotification(message, type) {
             const notificationArea = document.getElementById('notification-area');
             notificationArea.textContent = message;
+            
+            // Clear any existing classes
             notificationArea.className = 'notification-area';
-            notificationArea.classList.add('notification-' + type);
+            
+            // Add the appropriate class based on the type
+            if (type === 'success') {
+                notificationArea.classList.add('notification-success');
+            } else if (type === 'error') {
+                notificationArea.classList.add('notification-error');
+            }
+            
             notificationArea.style.display = 'block';
             
             // Auto hide after 3 seconds

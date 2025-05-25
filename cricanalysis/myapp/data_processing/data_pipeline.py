@@ -47,7 +47,7 @@ def process_ipl_data():
         
         # Process each match
         for index, match in ipl_matches.iterrows():
-            if index < 5:  # Skip first few matches as they don't have history
+            if index < 5:  
                 continue
                 
             team1 = match['team1']
@@ -136,15 +136,15 @@ def process_international_matches(file_path, output_path, format_name):
                 return pd.NaT
                 
             date_formats = [
-                '%Y-%m-%d',      # 2022-01-15
-                '%d-%m-%Y',      # 15-01-2022
-                '%d/%m/%Y',      # 15/01/2022
-                '%m/%d/%Y',      # 01/15/2022
-                '%Y/%m/%d',      # 2022/01/15
-                '%d %b %Y',      # 15 Jan 2022
-                '%d-%b-%Y',      # 15-Jan-2022
-                '%d %B %Y',      # 15 January 2022
-                '%B %d, %Y'      # January 15, 2022
+                '%Y-%m-%d',      
+                '%d-%m-%Y',      
+                '%d/%m/%Y',      
+                '%m/%d/%Y',      
+                '%Y/%m/%d',     
+                '%d %b %Y',      
+                '%d-%b-%Y',      
+                '%d %B %Y',      
+                '%B %d, %Y'      
             ]
             
             for date_format in date_formats:
@@ -186,7 +186,7 @@ def process_international_matches(file_path, output_path, format_name):
         # Get unique teams
         teams = pd.concat([matches_df['Team1 Name'], matches_df['Team2 Name']]).unique()
         
-        # Process each match (skip first few matches as they don't have history)
+        # Process each match 
         for index, match in matches_df.iloc[10:].iterrows():
             team1 = match['Team1 Name']
             team2 = match['Team2 Name']
@@ -207,7 +207,7 @@ def process_international_matches(file_path, output_path, format_name):
             # Count wins in head-to-head matches
             team1_wins_h2h = 0
             team2_wins_h2h = 0
-            draws_h2h = 0  # Track draws specifically for Test matches
+            draws_h2h = 0  
             
             for _, h2h_match in head_to_head.iterrows():
                 if h2h_match['Match Winner'] == team1:
@@ -215,7 +215,6 @@ def process_international_matches(file_path, output_path, format_name):
                 elif h2h_match['Match Winner'] == team2:
                     team2_wins_h2h += 1
                 elif format_name.upper() == 'TEST' and h2h_match['Match Winner'] == 'Draw':
-                    # Count draws in Test matches
                     draws_h2h += 1
             
             # Recent form (last 25 matches)
@@ -242,7 +241,7 @@ def process_international_matches(file_path, output_path, format_name):
                 elif format_name.upper() == 'TEST' and t2_match['Match Winner'] == 'Draw':
                     team2_draws += 1
             
-            # Win percentages - for Test matches, consider draws in the calculation
+            # Win percentages - for Test matches
             if format_name.upper() == 'TEST':
                 team1_win_pct_h2h = team1_wins_h2h / len(head_to_head) if len(head_to_head) > 0 else 0
                 team2_win_pct_h2h = team2_wins_h2h / len(head_to_head) if len(head_to_head) > 0 else 0

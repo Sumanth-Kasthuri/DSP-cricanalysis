@@ -112,7 +112,7 @@ def extract_matches(match_type_data):
                 team1 = match_info.get("team1", {})
                 team2 = match_info.get("team2", {})
                 venue = match_info.get("venueInfo", {})
-                match_score = match.get("matchScore", {})  # may not exist
+                match_score = match.get("matchScore", {})  
 
                 team1_score = match_score.get("team1Score", {}).get("inngs1", {})
                 team2_score = match_score.get("team2Score", {}).get("inngs1", {})
@@ -129,13 +129,13 @@ def extract_matches(match_type_data):
                     "team1_score": team1_score,
                     "team2_score": team2_score,
                     "startDate": match_info.get("startDate", ""),
-                    "matchId": match_info.get("matchId", "")  # Add matchId to the data
+                    "matchId": match_info.get("matchId", "")  
                 })
     return matches
 
 # Update matches_view to include user's favorite teams
 def matches_view(request):
-    # Fetch match data from API services with force_refresh=True to ensure fresh data
+    # Fetch match data from API services with force_refresh
     live_data = get_live_matches(force_refresh=True)
     upcoming_data = get_upcoming_matches(force_refresh=True)
     recent_data = get_recent_matches(force_refresh=True)
@@ -151,7 +151,7 @@ def matches_view(request):
         favorite_team_ids = list(FavoriteTeam.objects.filter(
             user=request.user).values_list('team_id', flat=True))
     
-    # Add timestamp to prevent browser caching
+    # timestamp to prevent browser caching
     timestamp = int(time.time())
     
     # Pass the processed data to the template
@@ -193,7 +193,7 @@ def players_view(request):
     
     players = player_data.get('player', [])
     
-    # Organize players alphabetically if on initial load
+    # Organise players alphabetically if on initial load
     if not search_query:
         players.sort(key=lambda x: x.get('name', ''))
     
@@ -206,7 +206,7 @@ def players_view(request):
 
 def player_info_view(request):
     player_id = request.GET.get('id')
-    stat_type = request.GET.get('type', 'info')  # Default to info instead of batting
+    stat_type = request.GET.get('type', 'info')  
     
     if not player_id:
         # No player ID provided
@@ -215,7 +215,7 @@ def player_info_view(request):
     # Get player details
     player_details = get_player_details(player_id)
     
-    # Initialize stats as None
+    # Initialise stats as None
     
     stats = None
     
@@ -224,7 +224,6 @@ def player_info_view(request):
         stats = get_player_bowling_stats(player_id)
     elif stat_type == 'batting':
         stats = get_player_batting_stats(player_id)
-    # For 'info', we already have the player_details
     
     context = {
         'player_id': player_id,
@@ -235,7 +234,7 @@ def player_info_view(request):
     
     return render(request, 'player_info.html', context)
 
-@cache_page(60 * 60 * 24)  # Cache for 24 hours
+@cache_page(60 * 60 * 24) 
 def player_image_proxy(request):
     """
     Proxy view that fetches player images from the API and serves them
@@ -283,11 +282,11 @@ def match_info_view(request):
         # No match ID provided
         return render(request, 'match_info.html', {'error': 'No match selected'})
     
-    # First, get the detailed match data to ensure we have venue, teams, and scores
+    # First, get the detailed match data for venue, teams, and scores
     match_details = None
     is_finished = False
     
-    # Check in live matches with force_refresh=True to get latest data
+    # Check in live matches with force_refresh
     live_data = get_live_matches(force_refresh=True)
     live_matches = extract_matches(live_data)
     for match in live_matches:
@@ -295,7 +294,7 @@ def match_info_view(request):
             match_details = match
             break
     
-    # If not found in live, check in upcoming with force_refresh=True
+    # If not found in live, check in upcoming with force_refresh
     if not match_details:
         upcoming_data = get_upcoming_matches(force_refresh=True)
         upcoming_matches = extract_matches(upcoming_data)
@@ -311,10 +310,10 @@ def match_info_view(request):
         for match in recent_matches:
             if str(match.get('matchId')) == str(match_id):
                 match_details = match
-                is_finished = True  # Match is in recent matches, so it's finished
+                is_finished = True  
                 break
     
-    # Get match scorecard data with force_refresh=True
+    # Get match scorecard data with force_refresh
     scorecard_data = get_match_scorecard(match_id, force_refresh=True)
     
     # Check for errors in the API response
@@ -415,7 +414,7 @@ def match_info_view(request):
 def team_info_view(request):
     team_id = request.GET.get('id')
     team_name = request.GET.get('team_name')
-    tab = request.GET.get('tab', 'schedule')  # Default to schedule tab
+    tab = request.GET.get('tab', 'schedule')  
     
     if not team_id and not team_name:
         # No team ID or team name provided
@@ -438,7 +437,7 @@ def team_info_view(request):
                 }
                 break
     
-    # Get players data for the team (whether we have team_id from URL or found it from team_name)
+    # Get players data for the team 
     team_players_data = {}
     
     if team_id:
@@ -479,7 +478,7 @@ def team_info_view(request):
             'teamSName': team_players_data.get('teamSName', '')
         }
     
-    # Initialize tab_data as empty
+    # Initialise tab_data as empty
     tab_data = {}
     
     # Fetch data based on selected tab
@@ -527,7 +526,7 @@ def add_favorite_team(request):
         # Check if this team is already a favorite
         existing = FavoriteTeam.objects.filter(user=request.user, team_id=team_id).exists()
         if existing:
-            return JsonResponse({'success': False, 'message': 'This team is already in your favorites'})
+            return JsonResponse({'success': True, 'message': f'{team_name} is already in your favorites'})
         
         # Add the team to favorites
         favorite = FavoriteTeam(
@@ -557,6 +556,6 @@ def remove_favorite_team(request):
             favorite.delete()
             return JsonResponse({'success': True, 'message': f'{team_name} removed from favorites'})
         else:
-            return JsonResponse({'success': False, 'message': 'Team was not in your favorites'})
+            return JsonResponse({'success': True, 'message': 'Team is not in your favorites'})
     
     return JsonResponse({'success': False, 'message': 'Invalid request method'})

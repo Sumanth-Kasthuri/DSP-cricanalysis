@@ -2,9 +2,6 @@ import requests
 import time
 import random
 
-# Original API credentials (keeping for reference)
-API_KEY = '17af6b8a-2fd9-45df-be74-b72634b69e1b'
-BASE_URL = 'https://cricapi.com/api/cricket'
 
 # RapidAPI credentials
 RAPID_API_KEY = '80a106c916mshbc28c87b8a1145fp1317a1jsn9fc2ec8c94ec'
@@ -24,7 +21,7 @@ def get_upcoming_matches(force_refresh=False):
         "X-RapidAPI-Host": RAPID_API_HOST
     }
     
-    # Add cache-busting parameter
+    # cache-busting parameter
     params = {}
     if force_refresh:
         params['_'] = int(time.time() * 1000) + random.randint(1, 1000)
@@ -50,7 +47,7 @@ def get_recent_matches(force_refresh=False):
         "X-RapidAPI-Host": RAPID_API_HOST
     }
     
-    # Add cache-busting parameter
+    # cache-busting parameter
     params = {}
     if force_refresh:
         params['_'] = int(time.time() * 1000) + random.randint(1, 1000)
@@ -76,7 +73,7 @@ def get_live_matches(force_refresh=False):
         "X-RapidAPI-Host": RAPID_API_HOST
     }
     
-    # Add cache-busting parameter
+    # cache-busting parameter
     params = {}
     if force_refresh:
         params['_'] = int(time.time() * 1000) + random.randint(1, 1000)
@@ -85,8 +82,6 @@ def get_live_matches(force_refresh=False):
     
     if response.status_code == 200:
         data = response.json()
-        # Since we're now using the correct live matches endpoint,
-        # no additional filtering should be needed
         return data
     else:
         return {"error": f"Failed to fetch live matches: {response.status_code}"}
@@ -180,7 +175,6 @@ def get_popular_players():
     for name in popular_names:
         result = search_players(name)
         if "player" in result and result["player"]:
-            # Take only the first result for each name
             all_players.append(result["player"][0])
     
     return {"player": all_players}
@@ -254,7 +248,7 @@ def get_match_scorecard(match_id, force_refresh=False):
         "X-RapidAPI-Host": RAPID_API_HOST
     }
     
-    # Add cache-busting parameter
+    # cache-busting parameter
     params = {}
     if force_refresh:
         params['_'] = int(time.time() * 1000) + random.randint(1, 1000)

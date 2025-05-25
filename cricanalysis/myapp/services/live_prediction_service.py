@@ -1,8 +1,3 @@
-"""
-Live Prediction Service
-This module calculates win probabilities for a match in progress,
-specifically during the second innings when a team is chasing a target.
-"""
 import logging
 import math
 
@@ -153,7 +148,7 @@ def get_format_overs(match_format):
     elif match_format == 'TEST':
         return 90  # Approximate, not strictly limited in Test matches
     else:
-        return 50  # Default to ODI if format is unknown
+        return 50  
 
 def calculate_t20_win_probability(runs_needed, wickets_left, balls_left, required_run_rate):
     """
@@ -373,7 +368,7 @@ def calculate_test_win_probability(match_details, current_runs, target_runs, cur
         dict: Win probability for both teams
     """
     # Check which inning we're in
-    is_fourth_innings = True  # Assuming we're always in the 4th innings for now
+    is_fourth_innings = True  
     
     if is_fourth_innings:
         runs_needed = target_runs - current_runs
@@ -438,7 +433,7 @@ def calculate_test_win_probability(match_details, current_runs, target_runs, cur
             explanation=explanation
         )
     else:
-        # For other innings in Test matches, we would need more complex logic
+        # For other innings in Test matches, complex logic is needed
         return None
 
 def create_win_prediction(batting_team_probability, bowling_team_probability, match_situation, explanation):

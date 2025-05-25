@@ -32,7 +32,7 @@ header {
 .logo {
     font-size: 1.8rem;
     font-weight: 700;
-    color: #002147; /* Dark blue */
+    color: #002147; 
 }
 
 .logo h2 {
@@ -58,7 +58,7 @@ nav#nav a {
 
 nav#nav a:hover {
     background-color: #e0e0e0;
-    color: #0057a3; /* Lighter blue accent */
+    color: #0057a3; 
 }
 
 nav#nav a.active {
@@ -112,21 +112,20 @@ nav#nav a.active {
         width: 95%;
     }
     
-    /* Keep the same header layout as desktop for tablet - no changes needed */
     header {
-        flex-wrap: nowrap; /* Prevent wrapping for tablet view */
+        flex-wrap: nowrap; 
     }
     
     nav#nav {
-        justify-content: center; /* Center the navigation items */
-        flex: 1; /* Take up available space between logo and auth buttons */
-        padding: 0 1rem; /* Add some padding for better spacing */
+        justify-content: center; 
+        flex: 1; 
+        padding: 0 1rem; 
     }
 }
 
 @media (max-width: 768px) {
     body {
-        padding-top: 60px; /* Add padding to body to account for fixed header */
+        padding-top: 60px; 
     }
     
     header {
@@ -138,7 +137,7 @@ nav#nav a.active {
         top: 0;
         left: 0;
         right: 0;
-        min-height: 60px; /* Ensure minimum height for header */
+        min-height: 60px; 
         background-color: #ffffff;
         z-index: 1000;
     }
@@ -158,7 +157,7 @@ nav#nav a.active {
         transform: translateX(-50%);
         margin: 0;
         text-align: center;
-        width: auto; /* Allow logo to take natural width */
+        width: auto; 
     }
     
     .auth-buttons {
@@ -172,7 +171,7 @@ nav#nav a.active {
     nav#nav {
         width: 100%;
         position: fixed;
-        top: 60px; /* Position below the header */
+        top: 60px; 
         left: 0;
         right: 0;
         background-color: #ffffff;
@@ -209,7 +208,7 @@ nav#nav a.active {
 
 @media (max-width: 480px) {
     header {
-        padding: 0.75rem 1.5rem; /* Increase horizontal padding */
+        padding: 0.75rem 1.5rem; 
     }
     
     .logo h2 {
@@ -218,13 +217,13 @@ nav#nav a.active {
     
     .hamburger-menu {
         font-size: 1.3rem;
-        left: 1.5rem; /* Use absolute units instead of percentage */
-        transform: none; /* Remove transform */
+        left: 1.5rem; 
+        transform: none; 
     }
     
     .auth-buttons {
-        right: 1.5rem; /* Use absolute units instead of percentage */
-        transform: none; /* Remove transform */
+        right: 1.5rem; 
+        transform: none; 
     }
     
     .profile-button, .login-button {

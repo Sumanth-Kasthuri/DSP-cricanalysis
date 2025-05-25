@@ -1,8 +1,3 @@
-"""
-Match Prediction Module
-This module provides functionality to predict cricket match outcomes
-using machine learning models trained on historical match data.
-"""
 import os
 import pandas as pd
 import numpy as np
@@ -15,7 +10,7 @@ class MatchPredictor:
     Class to handle cricket match outcome predictions using machine learning
     """
     def __init__(self):
-        """Initialize the match predictor with paths to models and data"""
+        """Initialise the match predictor with paths to models and data"""
         # Get base directory paths
         self.base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self.model_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'models')
@@ -29,7 +24,7 @@ class MatchPredictor:
         self.test_model_path = os.path.join(self.model_dir, 'test_model.pkl')
         self.ipl_model_path = os.path.join(self.model_dir, 'ipl_model.pkl')
         
-        # Initialize models
+        # Initialise models
         self.odi_model = None
         self.t20i_model = None
         self.test_model = None
@@ -60,7 +55,7 @@ class MatchPredictor:
                 print("Test match model loaded successfully")
                     
             if os.path.exists(self.ipl_model_path):
-                with open(self.ipl_model_path, 'rb') as f:  # Fixed typo here
+                with open(self.ipl_model_path, 'rb') as f:  
                     self.ipl_model = pickle.load(f)
                 print("IPL model loaded successfully")
         except Exception as e:
@@ -241,15 +236,15 @@ class MatchPredictor:
                     # Get team 1 stats based on whether it was team1 or team2 in the last match
                     if team1_last_match['team1'] == team1:
                         team1_stats = {
-                            'wins_h2h': 0,  # No direct history
-                            'win_pct_h2h': 0,  # No direct history
+                            'wins_h2h': 0,  
+                            'win_pct_h2h': 0,  
                             'recent_wins': team1_last_match['team1_recent_wins'],
                             'win_pct': team1_last_match['team1_win_pct']
                         }
                     else:
                         team1_stats = {
-                            'wins_h2h': 0,  # No direct history
-                            'win_pct_h2h': 0,  # No direct history
+                            'wins_h2h': 0,  
+                            'win_pct_h2h': 0,  
                             'recent_wins': team1_last_match['team2_recent_wins'],
                             'win_pct': team1_last_match['team2_win_pct']
                         }
@@ -257,15 +252,15 @@ class MatchPredictor:
                     # Get team 2 stats based on whether it was team1 or team2 in the last match
                     if team2_last_match['team1'] == team2:
                         team2_stats = {
-                            'wins_h2h': 0,  # No direct history
-                            'win_pct_h2h': 0,  # No direct history
+                            'wins_h2h': 0,  
+                            'win_pct_h2h': 0,  
                             'recent_wins': team2_last_match['team1_recent_wins'],
                             'win_pct': team2_last_match['team1_win_pct']
                         }
                     else:
                         team2_stats = {
-                            'wins_h2h': 0,  # No direct history
-                            'win_pct_h2h': 0,  # No direct history
+                            'wins_h2h': 0,  
+                            'win_pct_h2h': 0,  
                             'recent_wins': team2_last_match['team2_recent_wins'],
                             'win_pct': team2_last_match['team2_win_pct']
                         }
@@ -273,7 +268,6 @@ class MatchPredictor:
                     return team1_stats, team2_stats
                 else:
                     # One or both teams have no match history
-                    # Use default values
                     team1_stats = {
                         'wins_h2h': 0,
                         'win_pct_h2h': 0,
@@ -415,7 +409,7 @@ class MatchPredictor:
             team1_prob = proba[team1_idx]
             team2_prob = proba[team2_idx]
             
-            # Normalize probabilities to sum to 1
+            # Normalise probabilities to sum to 1
             total = team1_prob + team2_prob
             if total > 0:
                 team1_prob = team1_prob / total
@@ -442,7 +436,7 @@ class MatchPredictor:
             team1_final_prob = (team1_prob * 0.5) + (team1_weighted_prob * 0.5)
             team2_final_prob = (team2_prob * 0.5) + (team2_weighted_prob * 0.5)
             
-            # Normalize final probabilities
+            # Normalise final probabilities
             total = team1_final_prob + team2_final_prob
             if total > 0:
                 team1_final_prob = team1_final_prob / total
@@ -483,10 +477,8 @@ class MatchPredictor:
         Returns:
             dict: Prediction results with probabilities
         """
-        # Use weighted combination of stats to calculate team strength
-        # Give 40% weight to head-to-head records and 60% weight to recent form
-        h2h_weight = 0.4
-        recent_form_weight = 0.6
+        h2h_weight = 0.4 # Use weighted combination of stats to calculate team strength
+        recent_form_weight = 0.6 # Give 40% weight to head-to-head records and 60% weight to recent form
         
         team1_strength = (
             h2h_weight * team1_stats['win_pct_h2h'] + 
@@ -511,7 +503,7 @@ class MatchPredictor:
         team1_prob = max(0.1, min(0.9, team1_prob))
         team2_prob = max(0.1, min(0.9, team2_prob))
         
-        # Normalize to sum to 1
+        # Normalise to sum to 1
         total = team1_prob + team2_prob
         team1_prob = team1_prob / total
         team2_prob = team2_prob / total

@@ -1,7 +1,3 @@
-"""
-Script to train cricket match prediction models
-Run this script to train and save the prediction models
-"""
 import os
 import sys
 import django

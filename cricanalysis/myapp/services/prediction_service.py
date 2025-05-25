@@ -1,8 +1,3 @@
-"""
-Prediction Service
-This module serves as an interface between the Django application and machine learning models.
-It handles match outcome prediction requests from views.
-"""
 import os
 import logging
 from ..machine_learning.match_predictor import MatchPredictor
@@ -95,7 +90,7 @@ def predict_match_outcome(team1_name, team2_name, match_format='ODI', match_deta
         return {
             'team1_probability': 0.5,
             'team2_probability': 0.5,
-            'predicted_winner': team1_name if team1_name < team2_name else team2_name,  # Arbitrary choice
+            'predicted_winner': team1_name if team1_name < team2_name else team2_name,  
             'error': str(e)
         }
 
@@ -113,8 +108,8 @@ def combine_predictions(historical_prediction, live_prediction, team1_name, team
         dict: Combined prediction results
     """
     # Determine which team is batting and which is bowling in the second innings
-    batting_team_name = team2_name  # In second innings, team2 is batting
-    bowling_team_name = team1_name  # In second innings, team1 is bowling
+    batting_team_name = team2_name  
+    bowling_team_name = team1_name  
     
     # Get probabilities from historical prediction
     team1_historical_prob = historical_prediction['team1_probability']
@@ -128,7 +123,7 @@ def combine_predictions(historical_prediction, live_prediction, team1_name, team
     team2_combined_prob = (team2_historical_prob * 0.5) + (batting_team_live_prob * 0.5)
     team1_combined_prob = (team1_historical_prob * 0.5) + (bowling_team_live_prob * 0.5)
     
-    # Normalize to ensure they sum to 1
+    # Normalise to ensure they sum to 1
     total_prob = team1_combined_prob + team2_combined_prob
     team1_combined_prob = team1_combined_prob / total_prob
     team2_combined_prob = team2_combined_prob / total_prob
@@ -164,7 +159,6 @@ def format_prediction_for_display(prediction, team1_name, team2_name):
     Returns:
         dict: Formatted prediction for display
     """
-    # If there was an error in prediction
     if 'error' in prediction:
         return {
             'team1_name': team1_name,
@@ -183,7 +177,7 @@ def format_prediction_for_display(prediction, team1_name, team2_name):
     # Get predicted winner
     predicted_winner = prediction['predicted_winner']
     
-    # Determine confidence level text
+    # Determine confidence level 
     confidence = prediction.get('confidence', max(prediction['team1_probability'], prediction['team2_probability']))
     if confidence >= 0.75:
         confidence_text = 'High'
