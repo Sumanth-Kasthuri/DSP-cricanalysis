@@ -181,7 +181,7 @@ def format_prediction_for_display(prediction, team1_name, team2_name):
     confidence = prediction.get('confidence', max(prediction['team1_probability'], prediction['team2_probability']))
     if confidence >= 0.75:
         confidence_text = 'High'
-    elif confidence >= 0.6:
+    elif confidence >= 0.5:
         confidence_text = 'Medium'
     else:
         confidence_text = 'Low'

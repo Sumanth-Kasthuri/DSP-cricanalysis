@@ -4,7 +4,7 @@ import random
 
 
 # RapidAPI credentials
-RAPID_API_KEY = '80a106c916mshbc28c87b8a1145fp1317a1jsn9fc2ec8c94ec'
+RAPID_API_KEY = ''
 RAPID_API_HOST = 'cricbuzz-cricket.p.rapidapi.com'
 
 def get_upcoming_matches(force_refresh=False):

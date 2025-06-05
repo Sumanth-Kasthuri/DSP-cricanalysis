@@ -1,6 +1,6 @@
 import requests
 
-WEATHER_API_KEY = "111f566059e30834783cf82e971b6d34"
+WEATHER_API_KEY = ""
 
 def extract_city_from_venue(venue_str):
     """
